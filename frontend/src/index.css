@@ -52,8 +52,22 @@
 
 body {
   margin: 0;
+  padding: 0;
+  background-color: #fff7f3;
+  font-family: cursive;
 }
 
+a {
+  text-decoration: none !important;
+}
+
+.card {
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
 #root {
   width: 1126px;
   max-width: 100%;
