@@ -1,73 +1,118 @@
-import { useState, useEffect } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Form, Button, Row, Col } from "react-bootstrap"
-import { useDispatch, useSelector } from "react-redux"
-import FormContainer from "../components/FormContainer"
-import Loader from "../components/Loader"
-import { useLoginMutation } from "../slices/usersApiSlice"
-import { setCredentials } from "../slices/authSlice"
-import { toast } from "react-toastify"
+import { useState } from 'react';
+import { Container, Card, Form, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+
+import { useLoginMutation } from '../slices/userApiSlice';
+import { setCredentials } from '../slices/authSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
+    const [login] = useLoginMutation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [login, { isLoading }] = useLoginMutation();
-
-    const { userInfo } = useSelector((state) => state.auth);
-
-    const [password, setPassword] = useState('');
-
-    const { search } = useLocation();
-    const sp = new URLSearchParams(search);
-    const redirect = sp.get('redirect') || '/';
-
-    useEffect(() => {
-        if (userInfo) {
-            navigate(redirect);
-        }
-    }, [userInfo, redirect, navigate])
-
     const submitHandler = async (e) => {
         e.preventDefault();
+
         try {
-            const res = await login({ email, password }).unwrap();
-            dispatch(setCredentials({ ...res }));
-            navigate(redirect);
+            const res = await login({
+                email,
+                password,
+            }).unwrap();
+
+            dispatch(setCredentials(res));
+
+            navigate('/');
         } catch (err) {
-            toast.error(err?.data?.message || err.error);
+            console.log(err);
+            alert('Pogrešan email ili lozinka');
         }
-    }
+    };
+
     return (
-        <FormContainer>
-            <h1>Prijavite se</h1>
-            <Form onSubmit={submitHandler}>
-                <Form.Group controlId="email" className="my-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Upisite email" value={email} onChange={(e) => setEmail(e.target.value)}></Form.Control>
-                </Form.Group>
+        <div
+            style={{
+                minHeight: '100vh',
+                background:
+                    'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                padding: '40px 0',
+            }}
+        >
+            <Container style={{ maxWidth: '550px' }}>
+                <Card
+                    style={{
+                        border: 'none',
+                        borderRadius: '30px',
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                    }}
+                >
+                    <Card.Body className='p-5'>
+                        <h2
+                            className='text-center mb-4'
+                            style={{
+                                color: '#441212',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            👤 Prijava
+                        </h2>
 
-                <Form.Group controlId="password" className="my-3">
-                    <Form.Label>Lozinka</Form.Label>
-                    <Form.Control type="password" placeholder="Upisite lozinku" value={password} onChange={(e) => setPassword(e.target.value)} />
-                </Form.Group>
+                        <Form onSubmit={submitHandler}>
+                            <Form.Group className='mb-3'>
+                                <Form.Label>Email</Form.Label>
 
-                <Button variant="primary" type="submit" className="mt-2" disabled={isLoading}>
-                    Prijava
-                </Button>
+                                <Form.Control
+                                    type='email'
+                                    value={email}
+                                    onChange={(e) =>
+                                        setEmail(e.target.value)
+                                    }
+                                    required
+                                />
+                            </Form.Group>
 
-                {isLoading && <Loader />}
-            </Form>
+                            <Form.Group className='mb-4'>
+                                <Form.Label>Lozinka</Form.Label>
 
-            <Row className="py-3">
-                <Col>
-                    Nemate nalog? <Link to={redirect ? `/register?redirect=${redirect}` : "/register"}>Registrujte se</Link>
-                </Col>
-            </Row>
-        </FormContainer>
-    )
-}
+                                <Form.Control
+                                    type='password'
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    required
+                                />
+                            </Form.Group>
 
-export default LoginScreen
+                            <Button
+                                type='submit'
+                                className='w-100'
+                                style={{
+                                    backgroundColor: '#441212',
+                                    border: 'none',
+                                    borderRadius: '15px',
+                                    padding: '12px',
+                                }}
+                            >
+                                Prijavi se
+                            </Button>
+                        </Form>
+
+                        <div className='text-center mt-4'>
+                            Nemate nalog?{' '}
+                            <Link to='/register'>
+                                Registrujte se
+                            </Link>
+                        </div>
+                    </Card.Body>
+                </Card>
+            </Container>
+        </div>
+    );
+};
+
+export default LoginScreen;

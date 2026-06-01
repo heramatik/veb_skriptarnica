@@ -5,6 +5,8 @@ import { connectDB } from "./src/config/db.js";
 import dotenv from "dotenv";
 import rateLimiter from "./src/middleware/rateLimiter.js";
 
+import userRoutes from './src/routes/userRoutes.js';
+
 dotenv.config();
 
 const app = express();
@@ -20,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/heramatik/zapis", nodesRoutes);
-
+app.use("/api/users", userRoutes);
 
 connectDB().then(() => {
     app.listen(PORT, () =>{

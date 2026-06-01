@@ -1,16 +1,14 @@
-import { useState, useEffect } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Form, Button, Row, Col } from "react-bootstrap"
-import { useDispatch, useSelector } from "react-redux"
-import FormContainer from "../components/FormContainer"
-import Loader from "../components/Loader"
-import { useRegisterMutation } from "../slices/usersApiSlice"
-import { setCredentials } from "../slices/authSlice"
-import { toast } from "react-toastify"
-
+import { useState, useEffect } from 'react';
+import { Form, Button, Container, Card, Row, Col } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import { useRegisterMutation } from '../slices/userApiSlice';
+import { setCredentials } from '../slices/authSlice';
 const RegisterScreen = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState(''); // DODATO: Stanje za adresu
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -18,73 +16,167 @@ const RegisterScreen = () => {
     const navigate = useNavigate();
 
     const [register, { isLoading }] = useRegisterMutation();
-
     const { userInfo } = useSelector((state) => state.auth);
-
-    const { search } = useLocation();
-    const sp = new URLSearchParams(search);
-    const redirect = sp.get('redirect') || '/';
 
     useEffect(() => {
         if (userInfo) {
-            navigate(redirect);
+            navigate('/');
         }
-    }, [userInfo, redirect, navigate])
+    }, [navigate, userInfo]);
 
     const submitHandler = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            toast.error('Lozinke se ne poklapaju');
+            alert('Lozinke se ne podudaraju!');
             return;
         }
-        else {
-            try {
-                const res = await register({ name, email, password }).unwrap();
-                dispatch(setCredentials({ ...res }));
-                navigate(redirect);
-            } catch (err) {
-                toast.error(err?.data?.message || err.error);
-            }
+
+        try {
+            const res = await register({
+                name,
+                email,
+                phone,
+                address,
+                password,
+            }).unwrap();
+
+            dispatch(setCredentials(res));
+
+            navigate('/');
+        } catch (err) {
+            alert(err?.data?.message || err.error);
         }
-
     };
+
     return (
-        <FormContainer>
-            <h1>Registrujte se</h1>
-            <Form onSubmit={submitHandler}>
-                <Form.Group controlId="name" className="my-3">
-                    <Form.Label>Ime</Form.Label>
-                    <Form.Control type="text" placeholder="Upišite ime" value={name} onChange={(e) => setName(e.target.value)}></Form.Control>
-                </Form.Group>
+        <div
+            style={{
+                minHeight: '100vh',
+                background: 'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                padding: '40px 0',
+            }}
+        >
+            <Container style={{ maxWidth: '600px' }}>
+                <Card
+                    style={{
+                        border: 'none',
+                        borderRadius: '30px',
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                    }}
+                >
+                    <Card.Body className='p-5'>
+                        <h2
+                            className='text-center mb-4'
+                            style={{ color: '#441212', fontWeight: 'bold' }}
+                        >
+                            📝 Registracija Naloga
+                        </h2>
 
-                <Form.Group controlId="email" className="my-3">
-                    <Form.Label>Email adresa</Form.Label>
-                    <Form.Control type="email" placeholder="Upišite email" value={email} onChange={(e) => setEmail(e.target.value)}></Form.Control>
-                </Form.Group>
+                        <Form onSubmit={submitHandler}>
 
-                <Form.Group controlId="password" className="my-3">
-                    <Form.Label>Lozinka</Form.Label>
-                    <Form.Control type="password" placeholder="Upišite lozinku" value={password} onChange={(e) => setPassword(e.target.value)} />
-                </Form.Group>
-                <Form.Group controlId="confirmPassword" className="my-3">
-                    <Form.Label>Potvrdite lozinku</Form.Label>
-                    <Form.Control type="password" placeholder="Potvrdite lozinku" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                </Form.Group>
+                            {/* IME I PREZIME */}
+                            <Form.Group className='mb-3' controlId='name'>
+                                <Form.Label>Ime i prezime <small style={{ color: '#6c757d' }}>(npr. Marko Marković)</small></Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    placeholder='Zoran Zorić'
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
 
-                <Button variant="primary" type="submit" className="mt-2" disabled={isLoading}>
-                    Registruj se
-                </Button>
+                            {/* EMAIL ADRESA */}
+                            <Form.Group className='mb-3' controlId='email'>
+                                <Form.Label>Email adresa <small style={{ color: '#6c757d' }}>(format: primer@gmail.com)</small></Form.Label>
+                                <Form.Control
+                                    type='email'
+                                    placeholder='tvoj-mejl@gmail.com'
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
 
-                {isLoading && <Loader />}
-            </Form>
+                            {/* BROJ TELEFONA */}
+                            <Form.Group className='mb-3' controlId='phone'>
+                                <Form.Label>Broj telefona <small style={{ color: '#6c757d' }}>(format: 06XXXXXXXX)</small></Form.Label>
+                                <Form.Control
+                                    type='tel'
+                                    pattern='[0-9]{9,11}' // Prihvata samo brojeve dužine između 9 i 11 cifara
+                                    placeholder='0641234567'
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
 
-            <Row className="py-3">
-                <Col>
-                    Imate nalog? <Link to={redirect ? `/login?redirect=${redirect}` : "/login"}>Prijavite se</Link>
-                </Col>
-            </Row>
-        </FormContainer>
-    )
-}
+                            {/* ADRESA */}
+                            <Form.Group className='mb-3' controlId='address'>
+                                <Form.Label>Adresa stanovanja <small style={{ color: '#6c757d' }}>(Ulica, broj, grad)</small></Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    placeholder='Bulevar Oslobođenja 21, Novi Sad'
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
 
-export default RegisterScreen
+                            {/* LOZINKA */}
+                            <Form.Group className='mb-3' controlId='password'>
+                                <Form.Label>Lozinka</Form.Label>
+                                <Form.Control
+                                    type='password'
+                                    placeholder='Unesite lozinku'
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+
+                            {/* POTVRDA LOZINKE */}
+                            <Form.Group className='mb-4' controlId='confirmPassword'>
+                                <Form.Label>Potvrdite lozinku</Form.Label>
+                                <Form.Control
+                                    type='password'
+                                    placeholder='Ponovite lozinku'
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Button
+                                type='submit'
+                                className='w-100 mb-3'
+                                disabled={isLoading}
+                                style={{
+                                    backgroundColor: '#441212',
+                                    border: 'none',
+                                    borderRadius: '15px',
+                                    padding: '12px',
+                                    fontWeight: '600',
+                                }}
+                            >
+                                {isLoading ? 'Registracija...' : 'Registruj se ☕'}
+                            </Button>
+
+                            <Row className='py-2 text-center'>
+                                <Col>
+                                    Već imate nalog?{' '}
+                                    <Link to='/login' style={{ color: '#441212', fontWeight: 'bold' }}>
+                                        Prijavite se
+                                    </Link>
+                                </Col>
+                            </Row>
+
+                        </Form>
+                    </Card.Body>
+                </Card>
+            </Container>
+        </div>
+    );
+};
+
+export default RegisterScreen;

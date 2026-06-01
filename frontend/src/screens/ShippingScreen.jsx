@@ -1,83 +1,137 @@
 import { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'; // IZMENJENO: Dodat useSelector
 import { useNavigate } from 'react-router-dom';
-import FormContainer from '../components/FormContainer';
+
+import {
+    Container,
+    Card,
+    Form,
+    Button,
+} from 'react-bootstrap';
+
 import { saveShippingAddress } from '../slices/cartSlice';
-import CheckoutSteps from '../components/CheckoutSteps';
 
 
 const ShippingScreen = () => {
-    const cart = useSelector((state) => state.cart);
-    const { shippingAddress } = cart;
+    // 1. Izvlačimo userInfo iz auth stanja i shippingAddress iz cart stanja
+    const { userInfo } = useSelector((state) => state.auth);
+    const { shippingAddress } = useSelector((state) => state.cart);
 
-    const [address, setAddress] = useState(shippingAddress?.address || '');
-    const [city, setCity] = useState(shippingAddress?.city || '');
-    const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '');
-    const [country, setCountry] = useState(shippingAddress?.country || '');
-
-    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    // 2. Automatsko popunjavanje: prva opcija je već uneta adresa, druga je nalog, treća je prazno polje
+    // Prvo gledamo userInfo (ulogovanu Milenu), pa tek onda šta je ostalo u korpi
+    const [name, setName] = useState(userInfo?.name || shippingAddress?.name || '');
+    const [phone, setPhone] = useState(userInfo?.phone || shippingAddress?.phone || '');
+    // Broj stola i napomena se uglavnom unose sveže pri svakoj porudžbini
+    const [tableNumber, setTableNumber] = useState(shippingAddress?.tableNumber || '');
+    const [note, setNote] = useState(shippingAddress?.note || '');
 
     const submitHandler = (e) => {
         e.preventDefault();
-        dispatch(saveShippingAddress({ address, city, postalCode, country }));
+
+        dispatch(
+            saveShippingAddress({
+                name,
+                phone,
+                tableNumber,
+                note,
+            })
+        );
+
         navigate('/payment');
     };
 
     return (
-        <FormContainer>
-            <CheckoutSteps step1 step2 />
-            <h1>Podaci o dostavi</h1>
+        <div
+            style={{
+                minHeight: '100vh',
+                background:
+                    'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                padding: '40px 0',
+            }}
+        >
+            <Container style={{ maxWidth: '650px' }}>
+                <Card
+                    style={{
+                        border: 'none',
+                        borderRadius: '30px',
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                    }}
+                >
+                    <Card.Body className='p-5'>
+                        <h2
+                            className='text-center mb-4'
+                            style={{
+                                color: '#441212',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            ☕ Podaci za porudžbinu
+                        </h2>
 
-            <Form onSubmit={submitHandler}>
-                <Form.Group controlId='address' className='my-2'>
-                    <Form.Label>Adresa</Form.Label>
-                    <Form.Control
-                        type='text'
-                        placeholder='Unesite adresu'
-                        value={address}
-                        required
-                        onChange={(e) => setAddress(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
-                <Form.Group controlId='city' className='my-2'>
-                    <Form.Label>Grad</Form.Label>
-                    <Form.Control
-                        type='text'
-                        placeholder='Unesite grad'
-                        value={city}
-                        required
-                        onChange={(e) => setCity(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
-                <Form.Group controlId='postalCode' className='my-2'>
-                    <Form.Label>Poštanski broj</Form.Label>
-                    <Form.Control
-                        type='text'
-                        placeholder='Unesite poštanski broj'
-                        value={postalCode}
-                        required
-                        onChange={(e) => setPostalCode(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
-                <Form.Group controlId='country' className='my-2'>
-                    <Form.Label>Država</Form.Label>
-                    <Form.Control
-                        type='text'
-                        placeholder='Unesite državu'
-                        value={country}
-                        required
-                        onChange={(e) => setCountry(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
+                        <Form onSubmit={submitHandler}>
+                            <Form.Group className='mb-3'>
+                                <Form.Label>Ime</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
 
-                <Button type='submit' variant='primary' className='my-2'>
-                    Nastavi
-                </Button>
-            </Form>
-        </FormContainer>
-    )
+                            <Form.Group className='mb-3'>
+                                <Form.Label>Telefon</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className='mb-3'>
+                                <Form.Label>Broj stola</Form.Label>
+                                <Form.Control
+                                    type='number'
+                                    value={tableNumber}
+                                    onChange={(e) => setTableNumber(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className='mb-4'>
+                                <Form.Label>Napomena</Form.Label>
+                                <Form.Control
+                                    as='textarea'
+                                    rows={3}
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                    placeholder='Bez leda, dodatni šećer...'
+                                />
+                            </Form.Group>
+
+                            <Button
+                                type='submit'
+                                className='w-100'
+                                style={{
+                                    backgroundColor: '#441212',
+                                    border: 'none',
+                                    borderRadius: '15px',
+                                    padding: '12px',
+                                    fontWeight: '600',
+                                }}
+                            >
+                                Nastavi
+                            </Button>
+                        </Form>
+                    </Card.Body>
+                </Card>
+            </Container>
+        </div>
+    );
 };
 
 export default ShippingScreen;

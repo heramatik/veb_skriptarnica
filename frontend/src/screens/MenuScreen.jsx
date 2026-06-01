@@ -1,191 +1,261 @@
+
 import { Container, Row, Col, Card } from 'react-bootstrap';
+import './MenuScreen.css';
+import VertigoNavbar from '../components/VertigoNavbar';
+import ScrollToTopButton from '../components/ScrollToTopButton';
+
+import { Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../slices/cartSlice';
+
+import slika1 from '../assets/images/slika1.jpg';
+import slika4 from '../assets/images/slika4.jpg';
+import slika6 from '../assets/images/slika6.jpg';
+import slika5 from '../assets/images/slika5.jpg';
+import slika3 from '../assets/images/slika3.jpg';
+import shake from '../assets/images/shake.jpg';
+
 
 const MenuScreen = () => {
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background:
-          'linear-gradient(135deg, #f8c8dc 0%, #d6f5e3 100%)',
-        padding: '50px 0',
-      }}
-    >
-      <Container>
-        <h1
-          className='text-center mb-5'
-          style={{
-            color: '#4b2e2e',
-            fontWeight: '700',
-            fontSize: '3rem',
-          }}
-        >
-          ☕ Vertigo Menu
-        </h1>
+    const dispatch = useDispatch();
 
-        <Row className='g-4'>
+    const addToCartHandler = (product) => {
+        dispatch(
+            addToCart({
+                ...product,
+                qty: 1,
+            })
+        );
+    };
+    const hotDrinks = [
+        { id: 1, name: 'Espresso', price: 190 },
+        { id: 2, name: 'Espresso sa mlekom', price: 210 },
+        { id: 3, name: 'Cappuccino', price: 210 },
+        { id: 4, name: 'Nescafe', price: 235 },
+        { id: 5, name: 'Latte', price: 245 },
+        { id: 6, name: 'Topla čokolada', price: 255 },
+    ];
 
-          {/* KAFA */}
+    const juices = [
+        { id: 7, name: 'Coca Cola', price: 255 },
+        { id: 8, name: 'Fanta', price: 255 },
+        { id: 9, name: 'Sprite', price: 255 },
+        { id: 10, name: 'Cockta', price: 255 },
+        { id: 11, name: 'Next Breskva', price: 255 },
+        { id: 12, name: 'Schweppes Tonic', price: 255 },
+    ];
 
-          <Col md={6}>
-            <Card
-              style={{
-                border: 'none',
-                borderRadius: '30px',
-                background: '#fff7fb',
-                boxShadow: '0 6px 15px rgba(0,0,0,0.12)',
-              }}
-            >
-              <Card.Body className='p-4'>
-                <h3
-                  style={{
-                    color: '#4b2e2e',
-                    marginBottom: '25px',
-                  }}
-                >
-                  ☕ Kafa
-                </h3>
+    const beers = [
+        { id: 13, name: 'Heineken 0.5', price: 335 },
+        { id: 14, name: 'Nektar 0.5', price: 285 },
+        { id: 15, name: 'Amstel 0.33', price: 270 },
+        { id: 16, name: 'Stella Artois', price: 395 },
+    ];
 
-                {[
-                  ['Espresso', '210 RSD'],
-                  ['Cappuccino', '290 RSD'],
-                  ['Latte', '320 RSD'],
-                  ['Flat White', '340 RSD'],
-                  ['Ice Coffee', '390 RSD'],
-                ].map((item) => (
-                  <div
-                    key={item[0]}
-                    className='d-flex justify-content-between mb-3'
-                  >
-                    <span>{item[0]}</span>
-                    <strong>{item[1]}</strong>
-                  </div>
-                ))}
-              </Card.Body>
-            </Card>
-          </Col>
+    const cocktails = [
+        { id: 17, name: 'Gordons Pink', price: 390 },
+        { id: 18, name: 'Classic Gin Tonic', price: 390 },
+        { id: 19, name: 'Tanqueray Premium', price: 440 },
+    ];
 
-          {/* OSVEŽENJE */}
+    return (
+        <div className='menu-screen'>
+            <Container className='py-5'>
+                {/*Nav bar */}
+                <VertigoNavbar />
 
-          <Col md={6}>
-            <Card
-              style={{
-                border: 'none',
-                borderRadius: '30px',
-                background: '#fff7fb',
-                boxShadow: '0 6px 15px rgba(0,0,0,0.12)',
-              }}
-            >
-              <Card.Body className='p-4'>
-                <h3
-                  style={{
-                    color: '#4b2e2e',
-                    marginBottom: '25px',
-                  }}
-                >
-                  🥤 Osveženje
-                </h3>
+                {/* HERO */}
 
-                {[
-                  ['Limunada', '235 RSD'],
-                  ['Ice Tea', '325 RSD'],
-                  ['Fresh Orange', '335 RSD'],
-                  ['Fresh Grejp', '375 RSD'],
-                  ['Smoothie', '420 RSD'],
-                ].map((item) => (
-                  <div
-                    key={item[0]}
-                    className='d-flex justify-content-between mb-3'
-                  >
-                    <span>{item[0]}</span>
-                    <strong>{item[1]}</strong>
-                  </div>
-                ))}
-              </Card.Body>
-            </Card>
-          </Col>
+                <div className='menu-hero'>
+                    <h1>☕ Caffe Vertigo Menu</h1>
 
-          {/* DEZERT */}
+                    <p>
+                        Dobrodošli u digitalni meni Caffe Vertigo lokala.
+                        Pregledajte našu ponudu toplih napitaka,
+                        sokova, piva i koktela. Nadamo se da ce vam se svideti i da cete uzivati u svakom gutljaju!
+                    </p>
+                </div>
 
-          <Col md={6}>
-            <Card
-              style={{
-                border: 'none',
-                borderRadius: '30px',
-                background: '#fff7fb',
-                boxShadow: '0 6px 15px rgba(0,0,0,0.12)',
-              }}
-            >
-              <Card.Body className='p-4'>
-                <h3
-                  style={{
-                    color: '#4b2e2e',
-                    marginBottom: '25px',
-                  }}
-                >
-                  🍰 Dezerti
-                </h3>
+                {/* GALLERY */}
 
-                {[
-                  ['Cheesecake', '420 RSD'],
-                  ['Tiramisu', '390 RSD'],
-                  ['Čokoladni kolač', '410 RSD'],
-                  ['Palačinke', '450 RSD'],
-                ].map((item) => (
-                  <div
-                    key={item[0]}
-                    className='d-flex justify-content-between mb-3'
-                  >
-                    <span>{item[0]}</span>
-                    <strong>{item[1]}</strong>
-                  </div>
-                ))}
-              </Card.Body>
-            </Card>
-          </Col>
+                <Row className='g-4 mb-5'>
+                    {[slika1, slika4, slika6].map(
+                        (image, index) => (
+                            <Col md={4} key={index}>
+                                <Card className='gallery-card'>
+                                    <Card.Img src={image}
+                                        className='gallery-image'
+                                    />
+                                </Card>
+                            </Col>
+                        )
+                    )}
+                </Row>
 
-          {/* ALKOHOL */}
+                {/* HOT DRINKS */}
 
-          <Col md={6}>
-            <Card
-              style={{
-                border: 'none',
-                borderRadius: '30px',
-                background: '#fff7fb',
-                boxShadow: '0 6px 15px rgba(0,0,0,0.12)',
-              }}
-            >
-              <Card.Body className='p-4'>
-                <h3
-                  style={{
-                    color: '#4b2e2e',
-                    marginBottom: '25px',
-                  }}
-                >
-                  🍷 Alkohol
-                </h3>
+                <Card className='menu-card mb-5'>
+                    <Card.Body>
+                        <h2 className='menu-title'>
+                            ☕ Topli napici
+                        </h2>
 
-                {[
-                  ['Gin Tonic', '590 RSD'],
-                  ['Aperol Spritz', '650 RSD'],
-                  ['Somersby', '385 RSD'],
-                  ['Vino čaša', '315 RSD'],
-                ].map((item) => (
-                  <div
-                    key={item[0]}
-                    className='d-flex justify-content-between mb-3'
-                  >
-                    <span>{item[0]}</span>
-                    <strong>{item[1]}</strong>
-                  </div>
-                ))}
-              </Card.Body>
-            </Card>
-          </Col>
+                        {hotDrinks.map((item) => (
+                            <div
+                                className='menu-item'
+                                key={item.id}
+                            >
+                                <span>{item.name}</span>
 
-        </Row>
-      </Container>
-    </div>
-  );
+                                <div className='d-flex align-items-center gap-3'>
+                                    <span>{item.price} RSD</span>
+
+                                    <Button
+                                        size='sm'
+                                        variant='success'
+                                        onClick={() => addToCartHandler(item)}
+                                    >
+                                        Dodaj
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </Card.Body>
+                </Card>
+
+                {/* JUICES */}
+
+                <Card className='menu-card mb-5'>
+                    <Card.Body>
+                        <h2 className='menu-title'>
+                            🥤 Sokovi
+                        </h2>
+
+                        {juices.map((item) => (
+                            <div
+                                className='menu-item'
+                                key={item.id}
+                            >
+                                <span>{item.name}</span>
+
+                                <div className='d-flex align-items-center gap-3'>
+                                    <span>{item.price} RSD</span>
+
+                                    <Button
+                                        size='sm'
+                                        variant='success'
+                                        onClick={() => addToCartHandler(item)}
+                                    >
+                                        Dodaj
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </Card.Body>
+                </Card>
+
+                {/* BEERS */}
+
+                <Card className='menu-card mb-5'>
+                    <Card.Body>
+                        <h2 className='menu-title'>
+                            🍺 Pivo
+                        </h2>
+
+                        {beers.map((item) => (
+                            <div
+                                className='menu-item'
+                                key={item.id}
+                            >
+                                <span>{item.name}</span>
+
+                                <div className='d-flex align-items-center gap-3'>
+                                    <span>{item.price} RSD</span>
+
+                                    <Button
+                                        size='sm'
+                                        variant='success'
+                                        onClick={() => addToCartHandler(item)}
+                                    >
+                                        Dodaj
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </Card.Body>
+                </Card>
+
+                {/* GIN TONIC */}
+
+                <Card className='menu-card mb-5'>
+                    <Card.Body>
+                        <h2 className='menu-title'>
+                            🍸 Gin Tonic
+                        </h2>
+
+                        {cocktails.map((item) => (
+                            <div
+                                className='menu-item'
+                                key={item.id}
+                            >
+                                <span>{item.name}</span>
+
+                                <div className='d-flex align-items-center gap-3'>
+                                    <span>{item.price} RSD</span>
+
+                                    <Button
+                                        size='sm'
+                                        variant='success'
+                                        onClick={() => addToCartHandler(item)}
+                                    >
+                                        Dodaj
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </Card.Body>
+                </Card>
+
+                {/* CONTACT */}
+
+                <Card className='contact-card'>
+                    <Card.Body>
+                        <h2 className='menu-title'>
+                            📩 Kontaktirajte nas
+                        </h2>
+
+                        <form>
+                            <input
+                                type='text'
+                                placeholder='Ime i prezime'
+                                className='contact-input'
+                            />
+
+                            <input
+                                type='email'
+                                placeholder='Email adresa'
+                                className='contact-input'
+                            />
+
+                            <textarea
+                                rows='5'
+                                placeholder='Vaša poruka'
+                                className='contact-input'
+                            />
+
+                            <button className='contact-button'>
+                                Pošalji
+                            </button>
+                        </form>
+                    </Card.Body>
+                </Card>
+                <ScrollToTopButton />
+
+            </Container>
+        </div>
+
+    );
 };
 
 export default MenuScreen;
+
