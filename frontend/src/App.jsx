@@ -2,7 +2,6 @@ import { Container } from 'react-bootstrap';
 import { Routes, Route } from 'react-router-dom';
 
 import Header from './components/Header';
-
 import HomeScreen from './screens/HomeScreen';
 import VertigoHomeScreen from './screens/VertigoHomeScreen';
 import MenuScreen from './screens/MenuScreen';

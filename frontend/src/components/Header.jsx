@@ -82,12 +82,16 @@ const Header = () => {
             {/* LEVA STRANA */}
 
             <Nav className='me-auto'>
-
-              <LinkContainer to='/'>
-                <Nav.Link>
-                  <FaHome /> Početna
-                </Nav.Link>
-              </LinkContainer>
+                <LinkContainer to='/'>
+  <Nav.Link
+    style={{
+      fontWeight: '600',
+      color: '#4b2e2e',
+    }}
+  >
+    <FaHome style={{ marginBottom: '3px' }} /> Početna
+  </Nav.Link>
+</LinkContainer>
             </Nav>
 
             {/* DESNA STRANA */}
