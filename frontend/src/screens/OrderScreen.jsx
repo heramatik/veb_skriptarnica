@@ -19,9 +19,10 @@ const OrderScreen = () => {
         cartItems,
         shippingAddress,
         paymentMethod,
+        selectedCard,
         discountPercentage,
         discountAmount,
-        totalPrice
+        totalPrice,
     } = cart;
 
     // DODATO: Računamo čistu cenu artikala pre popusta, radi lepšeg prikaza u specifikaciji
@@ -106,47 +107,75 @@ const OrderScreen = () => {
                             }}
                         >
                             <Card.Body>
-                                <h4>Podaci kupca</h4>
-                                <p><strong>Ime:</strong> {shippingAddress.name}</p>
-                                <p><strong>Telefon:</strong> {shippingAddress.phone}</p>
-                                <p><strong>Broj stola:</strong> {shippingAddress.tableNumber}</p>
-                                <p>
-                                    <strong>Način plaćanja:</strong> {paymentMethod?.method === 'Kartica' &&
-                                        paymentMethod?.card && (
-                                            <p>
-                                                <strong>Kartica:</strong>{' '}
-                                                {paymentMethod.card.brand}
-                                                {' '}
-                                                ****
-                                                {' '}
-                                                {paymentMethod.card.last4}
-                                            </p>
-                                        )}
-                                </p>
-                                <p><strong>Napomena:</strong> {shippingAddress.note || 'Nema'}</p>
-                            </Card.Body>
-                        </Card>
+                                <h4 className='mb-4'>👤 Podaci kupca</h4>
 
-                        <Card
-                            style={{
-                                border: 'none',
-                                borderRadius: '25px',
-                                boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-                            }}
-                        >
-                            <Card.Body>
-                                <h4>Naručeni artikli</h4>
-                                <ListGroup variant='flush'>
-                                    {cartItems.map((item) => (
-                                        <ListGroup.Item
-                                            key={item.id}
-                                            className='d-flex justify-content-between'
+                                <p>
+                                    <strong>Ime:</strong> {shippingAddress.name}
+                                </p>
+
+                                <p>
+                                    <strong>Telefon:</strong> {shippingAddress.phone}
+                                </p>
+
+                                <p>
+                                    <strong>Broj stola:</strong> {shippingAddress.tableNumber}
+                                </p>
+
+                                <p>
+                                    <strong>Način plaćanja:</strong> {paymentMethod}
+                                </p>
+
+                                {paymentMethod === 'Kartica' &&
+                                    selectedCard && (
+                                        <div
+                                            style={{
+                                                background:
+                                                    'linear-gradient(135deg, #3b1f1f 0%, #6a3b3b 100%)',
+                                                color: '#fff',
+                                                borderRadius: '20px',
+                                                padding: '25px',
+                                                marginTop: '20px',
+                                                boxShadow:
+                                                    '0 10px 25px rgba(0,0,0,0.2)',
+                                            }}
                                         >
-                                            <span>{item.name} x {item.qty}</span>
-                                            <strong>{item.price * item.qty} RSD</strong>
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
+                                            <div className='d-flex justify-content-between mb-4'>
+                                                <h5>💳 Heramatik Card</h5>
+                                                <span>VISA</span>
+                                            </div>
+
+                                            <h4
+                                                style={{
+                                                    letterSpacing: '3px',
+                                                    marginBottom: '25px',
+                                                }}
+                                            >
+                                                **** **** ****{' '}
+                                                {selectedCard.cardNumber.slice(-4)}
+                                            </h4>
+
+                                            <div className='d-flex justify-content-between'>
+                                                <div>
+                                                    <small>Vlasnik</small>
+                                                    <div>
+                                                        {selectedCard.cardHolder}
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <small>Ističe</small>
+                                                    <div>
+                                                        {selectedCard.expiryDate}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                <p className='mt-4'>
+                                    <strong>Napomena:</strong>{' '}
+                                    {shippingAddress.note || 'Nema'}
+                                </p>
                             </Card.Body>
                         </Card>
                     </Col>

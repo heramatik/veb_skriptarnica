@@ -32,11 +32,11 @@ const Header = () => {
     const logoutHandler = async () => {
         try {
             await logoutApiCall().unwrap();
-            dispatch(logout());
-            navigate('/login');
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
+        dispatch(logout());   // uvek očisti sesiju, bez obzira na server
+        navigate('/login');
     };
 
     // Pomoćna funkcija koja dodaje vizuelni bedž ili tekst pored imena u zavisnosti od uloge
@@ -76,7 +76,7 @@ const Header = () => {
                                 }}
                             >
                                 HERAMATIK
-                            </span> 
+                            </span>
                         </Navbar.Brand>
                     </LinkContainer>
 
@@ -148,8 +148,8 @@ const Header = () => {
 
                             {/* SPECIJALNI ULZ ZA TEBE (ADMIN PANEL) */}
                             {userInfo && userInfo.role === 'admin' && (
-                                <NavDropdown 
-                                    title={<span><FaCrown style={{ color: '#ffc107', marginRight: '5px' }} /> Admin Panel</span>} 
+                                <NavDropdown
+                                    title={<span><FaCrown style={{ color: '#ffc107', marginRight: '5px' }} /> Admin Panel</span>}
                                     id='adminmenu'
                                     className='ms-lg-2'
                                 >

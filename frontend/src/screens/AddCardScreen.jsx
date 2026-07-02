@@ -10,19 +10,34 @@ const AddCardScreen = () => {
     const [expiryDate, setExpiryDate] = useState('');
 
     const [addCard] = useAddCardMutation();
+    const detectBrand = (num) => {
+        const n = num.replace(/\s/g, '');
+        if (n.startsWith('4')) return 'Visa';
+        if (n.startsWith('5')) return 'MasterCard';
+        if (n.startsWith('3')) return 'American Express';
+        if (n.startsWith('9')) return 'Dina';   // DinaCard (pojednostavljeno za demo)
+        return null;                            // nepoznato
+    };
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        const clean = cardNumber.replace(/\s/g, '');
+        const brand = detectBrand(clean);
+
+        if (clean.length < 13 || !brand) {
+            alert('Broj kartice nije ispravan ili tip nije podržan');
+            return;
+        }
 
         try {
             await addCard({
                 cardHolder,
-                cardNumber,
+                brand,
+                last4: clean.slice(-4),
                 expiryDate,
+                paymentMethodId: crypto.randomUUID(),
             }).unwrap();
-
             alert('Kartica uspešno dodata');
-
             navigate('/profile');
         } catch (err) {
             alert(err?.data?.message || err.error);

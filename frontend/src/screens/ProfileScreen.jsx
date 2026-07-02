@@ -142,7 +142,7 @@ const ProfileScreen = () => {
                                     variant='dark'
                                     size='sm'
                                     className='mt-3'
-                                    onClick={() => navigate('/add-card')}
+                                    onClick={() => navigate('/cards')}
                                 >
                                     ➕ Dodaj karticu
                                 </Button>

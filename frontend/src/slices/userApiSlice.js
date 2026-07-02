@@ -29,10 +29,27 @@ export const userApiSlice = apiSlice.injectEndpoints({
 
         addCard: builder.mutation({
             query: (data) => ({
-                url: `${USERS_URL}/add-card`,
+                url: `${USERS_URL}/cards`,   
                 method: 'POST',
                 body: data,
             }),
+            invalidatesTags: ['Card'],
+        }),
+
+        getCards: builder.query({
+            query: () => ({
+                url: `${USERS_URL}/cards`,
+            }),
+            providesTags: ['Card'],
+            keepUnusedDataFor: 5,
+        }),
+
+        deleteCard: builder.mutation({
+            query: (cardId) => ({
+                url: `${USERS_URL}/cards/${cardId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Card'],
         }),
     }),
 });
@@ -41,5 +58,7 @@ export const {
     useLoginMutation,
     useRegisterMutation,
     useLogoutMutation,
-    useAddCardMutation
+    useAddCardMutation,
+    useGetCardsQuery,    // DODATO
+    useDeleteCardMutation, // DODATO
 } = userApiSlice;

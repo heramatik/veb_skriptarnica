@@ -77,34 +77,84 @@ const logoutUser = async (req, res) => {
         message: 'Odjava uspešna',
     });
 };
-// @desc    Add card
-// @route   POST /api/users/add-card
-// @access  Private
 
-// Dodavanje kartice korisniku
+// @desc    Dodaj karticu korisniku
+// @route   POST /api/users/cards
+// @access  Private
 const addCard = async (req, res) => {
-    const { cardHolder, cardNumber, expiryDate } = req.body;
+    const { cardHolder, brand, last4, expiryDate, paymentMethodId } = req.body;
 
     const user = await User.findById(req.user._id);
 
-    if (user) {
-        user.savedCards.push({
-            cardHolder,
-            cardNumber,
-            expiryDate,
-        });
-
-        await user.save();
-
-        res.status(201).json({
-            message: 'Kartica uspešno dodata',
-            savedCards: user.savedCards,
-        });
-    } else {
-        res.status(404).json({
-            message: 'Korisnik nije pronađen',
-        });
+    if (!user) {
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
     }
+
+    if (!cardHolder || !brand || !last4 || !expiryDate) {
+        return res.status(400).json({ message: 'Nedostaju podaci o kartici' });
+    }
+
+    const isFirst = user.savedCards.length === 0;
+
+    user.savedCards.push({
+        cardHolder,
+        brand,
+        last4,
+        expiryDate,
+        paymentMethodId,
+        isDefault: isFirst, // prva kartica = podrazumevana
+    });
+
+    await user.save();
+
+    res.status(201).json({
+        message: 'Kartica uspešno dodata',
+        savedCards: user.savedCards,
+    });
+};
+
+// @desc    Vrati sve kartice korisnika
+// @route   GET /api/users/cards
+// @access  Private
+const getCards = async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
+    }
+
+    res.json(user.savedCards);
+};
+
+// @desc    Obriši karticu po ID-u
+// @route   DELETE /api/users/cards/:id
+// @access  Private
+const deleteCard = async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
+    }
+
+    const card = user.savedCards.id(req.params.id);
+
+    if (!card) {
+        return res.status(404).json({ message: 'Kartica nije pronađena' });
+    }
+
+    const wasDefault = card.isDefault;
+    user.savedCards = user.savedCards.filter(
+        (c) => c._id.toString() !== req.params.id
+    );
+
+    // ako je obrisana podrazumevana, prva preostala postaje podrazumevana
+    if (wasDefault && user.savedCards.length > 0) {
+        user.savedCards[0].isDefault = true;
+    }
+
+    await user.save();
+
+    res.json(user.savedCards);
 };
 
 const getUsers = async (req, res) => {
@@ -151,5 +201,7 @@ export {
     logoutUser,
     getUsers,
     updateUserRoles,
-    addCard
+    addCard,
+    getCards,
+    deleteCard,
 };
