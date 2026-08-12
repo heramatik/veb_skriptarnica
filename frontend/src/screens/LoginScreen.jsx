@@ -15,23 +15,27 @@ const LoginScreen = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const submitHandler = async (e) => {
-        e.preventDefault();
+   const submitHandler = async (e) => {
+    e.preventDefault();
 
-        try {
-            const res = await login({
-                email,
-                password,
-            }).unwrap();
+    console.log("EMAIL:", email);
+    console.log("PASSWORD:", password);
 
-            dispatch(setCredentials(res));
+    try {
+        const res = await login({
+            email,
+            password,
+        }).unwrap();
 
-            navigate('/');
-        } catch (err) {
-            console.log(err);
-            alert('Pogrešan email ili lozinka');
-        }
-    };
+        console.log("LOGIN RESPONSE:", res);
+
+        dispatch(setCredentials(res));
+        navigate('/');
+    } catch (err) {
+        console.log("LOGIN ERROR:", err);
+        alert('Pogrešan email ili lozinka');
+    }
+};
 
     return (
         <div

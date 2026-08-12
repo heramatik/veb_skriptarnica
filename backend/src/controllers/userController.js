@@ -46,10 +46,13 @@ const registerUser = async (req, res) => {
 
 // Login korisnika
 const authUser = async (req, res) => {
+    console.log("LOGIN BODY:", req.body);
+
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-
+    console.log("EMAIL:", email);
+    console.log("PASSWORD:", password);
+    
     if (user && (await user.matchPassword(password))) {
         res.json({
             _id: user._id,
