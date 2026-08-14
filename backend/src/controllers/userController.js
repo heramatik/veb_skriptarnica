@@ -43,7 +43,6 @@ const registerUser = async (req, res) => {
         });
     }
 };
-
 // Login korisnika
 const authUser = async (req, res) => {
     console.log("LOGIN BODY:", req.body);
@@ -52,24 +51,34 @@ const authUser = async (req, res) => {
 
     console.log("EMAIL:", email);
     console.log("PASSWORD:", password);
-    
-    if (user && (await user.matchPassword(password))) {
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            address: user.address,
-            isAdmin: user.isAdmin,
-            isManager: user.isManager,
-            isWaiter: user.isWaiter,
-            isLoyalCustomer: user.isLoyalCustomer,
-            savedCards: user.savedCards,
-            token: generateToken(user._id),
-        });
-    } else {
-        res.status(401).json({
-            message: 'Pogrešan email ili lozinka',
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (user && (await user.matchPassword(password))) {
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                isAdmin: user.isAdmin,
+                isManager: user.isManager,
+                isWaiter: user.isWaiter,
+                isLoyalCustomer: user.isLoyalCustomer,
+                savedCards: user.savedCards,
+                token: generateToken(user._id),
+            });
+        } else {
+            res.status(401).json({
+                message: 'Pogrešan email ili lozinka',
+            });
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+
+        res.status(500).json({
+            message: "Greška na serveru",
         });
     }
 };

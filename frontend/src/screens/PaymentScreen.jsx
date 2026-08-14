@@ -1,136 +1,147 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Container, Card, Form, Button } from 'react-bootstrap';
-import { savePaymentMethod } from '../slices/cartSlice';
+import { Form, Button } from 'react-bootstrap';
+import { useGetCardsQuery } from '../slices/userApiSlice';
+
+import FormContainer from '../components/FormContainer';
+import CheckoutSteps from '../components/CheckoutSteps';
+
+import {
+    savePaymentMethod,
+    saveSelectedCard,
+} from '../slices/cartSlice';
 
 const PaymentScreen = () => {
+    const [paymentMethod, setPaymentMethod] = useState('Gotovina');
+    const [selectedCard, setSelectedCard] = useState('');
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { userInfo } = useSelector((state) => state.auth);
+    const cart = useSelector((state) => state.cart);
+    const { shippingAddress } = cart;
 
-    const [paymentMethod, setPaymentMethod] = useState('Gotovina');
-    const [selectedCard, setSelectedCard] = useState('');
+    const { userInfo } = useSelector((state) => state.auth);
+    const {
+        data: savedCards = [],
+        isLoading,
+    } = useGetCardsQuery();
+
+    useEffect(() => {
+        if (!shippingAddress) {
+            navigate('/shipping');
+        }
+    }, [shippingAddress, navigate]);
 
     const submitHandler = (e) => {
         e.preventDefault();
 
-        dispatch(
-            savePaymentMethod({
-                method: paymentMethod,
-                card: selectedCard,
-            })
-        );
+        dispatch(savePaymentMethod(paymentMethod));
+
+        if (paymentMethod === 'Kartica') {
+            dispatch(saveSelectedCard(selectedCard));
+        }
 
         navigate('/order');
     };
 
     return (
-        <div
-            style={{
-                minHeight: '100vh',
-                background:
-                    'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
-                padding: '40px 0',
-            }}
-        >
-            <Container style={{ maxWidth: '600px' }}>
-                <Card
-                    style={{
-                        border: 'none',
-                        borderRadius: '30px',
-                        padding: '30px',
-                    }}
-                >
-                    <h2 className='mb-4'>💳 Način plaćanja</h2>
+        <FormContainer>
+            <CheckoutSteps step1 step2 step3 />
 
-                    <Form onSubmit={submitHandler}>
-                        <Form.Check
-                            type='radio'
-                            label='Gotovina'
-                            value='Gotovina'
-                            checked={paymentMethod === 'Gotovina'}
-                            onChange={(e) =>
-                                setPaymentMethod(e.target.value)
-                            }
-                            className='mb-3'
-                        />
+            <h1>Način plaćanja</h1>
 
-                        <Form.Check
-                            type='radio'
-                            label='Kartica'
-                            value='Kartica'
-                            checked={paymentMethod === 'Kartica'}
-                            onChange={(e) =>
-                                setPaymentMethod(e.target.value)
-                            }
-                            className='mb-3'
-                        />
+            <Form onSubmit={submitHandler}>
+                <Form.Group className='mb-4'>
+                    <Form.Label as='legend'>
+                        Odaberite način plaćanja
+                    </Form.Label>
 
-                        {paymentMethod === 'Kartica' && (
-                            <div className='ms-3 mb-4'>
+                    <Form.Check
+                        type='radio'
+                        className='my-2'
+                        label='Gotovina'
+                        id='Gotovina'
+                        name='paymentMethod'
+                        value='Gotovina'
+                        checked={paymentMethod === 'Gotovina'}
+                        onChange={(e) =>
+                            setPaymentMethod(e.target.value)
+                        }
+                    />
 
-                                <h5 className='mb-3'>
-                                    Izaberite karticu
-                                </h5>
+                    <Form.Check
+                        type='radio'
+                        className='my-2'
+                        label='Kartica'
+                        id='Kartica'
+                        name='paymentMethod'
+                        value='Kartica'
+                        checked={paymentMethod === 'Kartica'}
+                        onChange={(e) =>
+                            setPaymentMethod(e.target.value)
+                        }
+                    />
+                </Form.Group>
 
-                                {userInfo?.savedCards?.length > 0 ? (
-                                    userInfo.savedCards.map(
-                                        (card, index) => (
-                                            <Form.Check
-                                                key={index}
-                                                type='radio'
-                                                name='selectedCard'
-                                                label={`${card.cardHolder} - **** ${card.cardNumber.slice(-4)}`}
-                                                onChange={() =>
-                                                    setSelectedCard(card)
-                                                }
-                                                className='mb-2'
-                                            />
-                                        )
-                                    )
-                                ) : (
-                                    <div>
-                                        <p className='text-muted'>
-                                            Nemate sačuvanih kartica.
-                                        </p>
+                {paymentMethod === 'Kartica' && (
+                    <Form.Group className='mb-4'>
+                        <Form.Label as='legend'>
+                            Izaberite karticu
+                        </Form.Label>
 
-                                        <Button
-                                            variant='dark'
-                                            size='sm'
-                                            onClick={() =>
-                                                navigate('/add-card')
-                                            }
-                                        >
-                                            ➕ Dodaj karticu
-                                        </Button>
-                                    </div>
-                                )}
+                        {isLoading ? (
+                            <p>Učitavanje kartica...</p>
+                        ) : savedCards.length > 0 ? (
+                            savedCards.map((card, index) => (
+                                <Form.Check
+                                    key={index}
+                                    type='radio'
+                                    name='selectedCard'
+                                    id={`card-${index}`}
+                                    label={`${card.cardHolder} - **** ${card.last4}`}
+                                    checked={
+                                        selectedCard === card.last4
+                                    }
+                                    onChange={() =>
+                                        setSelectedCard(card.last4)
+                                    }
+                                    className='my-2'
+                                />
+                            ))
+                        ) : (
+                            <div>
+                                <p className='text-muted'>
+                                    Nemate sačuvanih kartica.
+                                </p>
+
+                                <Button
+                                    type='button'
+                                    variant='dark'
+                                    onClick={() =>
+                                        navigate('/cards')
+                                    }
+                                >
+                                    ➕ Dodaj karticu
+                                </Button>
                             </div>
                         )}
+                    </Form.Group>
+                )}
 
-                        <Button
-                            type='submit'
-                            className='w-100'
-                            disabled={
-                                paymentMethod === 'Kartica' &&
-                                !selectedCard
-                            }
-                            style={{
-                                backgroundColor: '#441212',
-                                border: 'none',
-                                borderRadius: '15px',
-                                padding: '12px',
-                                fontWeight: '600',
-                            }}
-                        >
-                            Nastavi
-                        </Button>
-                    </Form>
-                </Card>
-            </Container>
-        </div>
+                <Button
+                    type='submit'
+                    variant='primary'
+                    disabled={
+                        paymentMethod === 'Kartica' &&
+                        !selectedCard
+                    }
+                >
+                    Nastavite
+                </Button>
+            </Form>
+        </FormContainer>
     );
 };
 

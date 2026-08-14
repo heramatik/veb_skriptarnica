@@ -143,15 +143,13 @@ const OrderScreen = () => {
                                                 <h5>💳 Heramatik Card</h5>
                                                 <span>VISA</span>
                                             </div>
-
                                             <h4
                                                 style={{
                                                     letterSpacing: '3px',
                                                     marginBottom: '25px',
                                                 }}
                                             >
-                                                **** **** ****{' '}
-                                                {selectedCard.cardNumber.slice(-4)}
+                                                **** **** **** {selectedCard}
                                             </h4>
 
                                             <div className='d-flex justify-content-between'>

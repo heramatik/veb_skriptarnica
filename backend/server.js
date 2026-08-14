@@ -4,16 +4,19 @@ import nodesRoutes from "./src/routes/nodesRoutes.js";
 import { connectDB } from "./src/config/db.js";
 import dotenv from "dotenv";
 import rateLimiter from "./src/middleware/rateLimiter.js";
-
+import orderRoutes from './src/routes/orderRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5001
+
+app.use('/api/orders', orderRoutes);
+
 app.use(cors({
     origin: "http://localhost:3000",
 }));
-const PORT = process.env.PORT || 5001
 
 //middleware
 app.use(express.json()); //da bi mogli da korisutimo req.body i da prevedemo serveru json.

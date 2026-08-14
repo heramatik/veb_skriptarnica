@@ -6,7 +6,7 @@ const initialState = localStorage.getItem("cart")
     : {
         cartItems: [],
         shippingAddress: {},
-        paymentMethod: "Gotovina",
+        paymentMethod: "PayPal",
         selectedCard: null,
         discountPercentage: 0,
         discountAmount: 0,
@@ -14,18 +14,20 @@ const initialState = localStorage.getItem("cart")
 
 const cartSlice = createSlice({
     name: "cart",
+
     initialState,
+
     reducers: {
         addToCart: (state, action) => {
             const item = action.payload;
 
             const existItem = state.cartItems.find(
-                (x) => x.id === item.id
+                (x) => x._id === item._id
             );
 
             if (existItem) {
                 state.cartItems = state.cartItems.map((x) =>
-                    x.id === existItem.id ? item : x
+                    x._id === existItem._id ? item : x
                 );
             } else {
                 state.cartItems = [...state.cartItems, item];
@@ -36,7 +38,7 @@ const cartSlice = createSlice({
 
         removeFromCart: (state, action) => {
             state.cartItems = state.cartItems.filter(
-                (x) => x.id !== action.payload
+                (x) => x._id !== action.payload
             );
 
             return updateCart(state);
@@ -45,20 +47,23 @@ const cartSlice = createSlice({
         saveShippingAddress: (state, action) => {
             state.shippingAddress = action.payload;
 
-            localStorage.setItem(
-                "cart",
-                JSON.stringify(state)
-            );
+            return updateCart(state);
         },
 
         savePaymentMethod: (state, action) => {
-            state.paymentMethod = action.payload.method;
-            state.selectedCard = action.payload.card || null;
+            state.paymentMethod = action.payload;
 
-            localStorage.setItem(
-                "cart",
-                JSON.stringify(state)
-            );
+            if (action.payload !== "Kartica") {
+                state.selectedCard = null;
+            }
+
+            return updateCart(state);
+        },
+
+        saveSelectedCard: (state, action) => {
+            state.selectedCard = action.payload;
+
+            return updateCart(state);
         },
 
         clearCart: (state) => {
@@ -69,7 +74,7 @@ const cartSlice = createSlice({
 
         increaseQty: (state, action) => {
             const item = state.cartItems.find(
-                (x) => x.id === action.payload
+                (x) => x._id === action.payload
             );
 
             if (item) {
@@ -81,7 +86,7 @@ const cartSlice = createSlice({
 
         decreaseQty: (state, action) => {
             const item = state.cartItems.find(
-                (x) => x.id === action.payload
+                (x) => x._id === action.payload
             );
 
             if (item && item.qty > 1) {
@@ -104,6 +109,7 @@ export const {
     removeFromCart,
     saveShippingAddress,
     savePaymentMethod,
+    saveSelectedCard,
     clearCart,
     increaseQty,
     decreaseQty,

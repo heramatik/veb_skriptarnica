@@ -1,13 +1,13 @@
-import { apiSlice } from './apiSlice';
+import { USERS_URL } from "../constants";
+import { apiSlice } from "./apiSlice";
 
-const USERS_URL = '/api/users';
-
-export const userApiSlice = apiSlice.injectEndpoints({
+export const usersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+
         login: builder.mutation({
             query: (data) => ({
-                url: `${USERS_URL}/login`,
-                method: 'POST',
+                url: USERS_URL + "/login",
+                method: "POST",
                 body: data,
             }),
         }),
@@ -15,41 +15,40 @@ export const userApiSlice = apiSlice.injectEndpoints({
         register: builder.mutation({
             query: (data) => ({
                 url: USERS_URL,
-                method: 'POST',
+                method: "POST",
                 body: data,
             }),
         }),
 
         logout: builder.mutation({
             query: () => ({
-                url: `${USERS_URL}/logout`,
-                method: 'POST',
+                url: USERS_URL + "/logout",
+                method: "POST",
             }),
         }),
 
         addCard: builder.mutation({
             query: (data) => ({
-                url: `${USERS_URL}/cards`,   
-                method: 'POST',
+                url: USERS_URL + "/cards",
+                method: "POST",
                 body: data,
             }),
-            invalidatesTags: ['Card'],
+            invalidatesTags: ["Card"],
         }),
 
         getCards: builder.query({
             query: () => ({
-                url: `${USERS_URL}/cards`,
+                url: USERS_URL + "/cards",
             }),
-            providesTags: ['Card'],
-            keepUnusedDataFor: 5,
+            providesTags: ["Card"],
         }),
 
         deleteCard: builder.mutation({
             query: (cardId) => ({
-                url: `${USERS_URL}/cards/${cardId}`,
-                method: 'DELETE',
+                url: USERS_URL + `/cards/${cardId}`,
+                method: "DELETE",
             }),
-            invalidatesTags: ['Card'],
+            invalidatesTags: ["Card"],
         }),
     }),
 });
@@ -59,6 +58,6 @@ export const {
     useRegisterMutation,
     useLogoutMutation,
     useAddCardMutation,
-    useGetCardsQuery,    // DODATO
-    useDeleteCardMutation, // DODATO
-} = userApiSlice;
+    useGetCardsQuery,
+    useDeleteCardMutation,
+} = usersApiSlice;
