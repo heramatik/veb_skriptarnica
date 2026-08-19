@@ -5,6 +5,7 @@ import {
     logoutUser,
     getUsers,
     updateUserRoles,
+    updateUserProfile,
     addCard,
     getCards,
     deleteCard,
@@ -17,6 +18,7 @@ const router = express.Router();
 router.post('/login', authUser);
 router.post('/logout', logoutUser);
 
+router.put('/profile', protect, updateUserProfile);
 // KARTICE (stavljene iznad '/:id/roles' da ne dođe do mešanja putanja)
 router.route('/cards')
     .post(protect, addCard)

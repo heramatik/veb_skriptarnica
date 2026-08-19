@@ -1,7 +1,7 @@
 import { USERS_URL } from "../constants";
 import { apiSlice } from "./apiSlice";
 
-export const usersApiSlice = apiSlice.injectEndpoints({
+export const userApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
 
         login: builder.mutation({
@@ -24,6 +24,14 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             query: () => ({
                 url: USERS_URL + "/logout",
                 method: "POST",
+            }),
+        }),
+
+        updateProfile: builder.mutation({
+            query: (userData) => ({
+                url: `${USERS_URL}/profile`,
+                method: "PUT",
+                body: userData,
             }),
         }),
 
@@ -50,6 +58,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["Card"],
         }),
+
     }),
 });
 
@@ -57,7 +66,8 @@ export const {
     useLoginMutation,
     useRegisterMutation,
     useLogoutMutation,
+    useUpdateProfileMutation,
     useAddCardMutation,
     useGetCardsQuery,
     useDeleteCardMutation,
-} = usersApiSlice;
+} = userApiSlice;

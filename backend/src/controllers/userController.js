@@ -207,10 +207,56 @@ const updateUserRoles = async (req, res) => {
     }
 };
 
+const updateUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'Korisnik nije pronađen',
+            });
+        }
+
+        user.name = req.body.name ?? user.name;
+        user.email = req.body.email ?? user.email;
+        user.phone = req.body.phone ?? user.phone;
+        user.address = req.body.address ?? user.address;
+
+        // Lozinku menjamo samo ako je korisnik uneo novu
+        if (req.body.password) {
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            isAdmin: updatedUser.isAdmin,
+            isManager: updatedUser.isManager,
+            isWaiter: updatedUser.isWaiter,
+            isLoyalCustomer: updatedUser.isLoyalCustomer,
+            savedCards: updatedUser.savedCards,
+            token: generateToken(updatedUser._id),
+        });
+
+    } catch (error) {
+        console.error('Update profile error:', error);
+
+        res.status(500).json({
+            message: 'Greška prilikom izmene profila',
+        });
+    }
+};
+
 export {
     registerUser,
     authUser,
     logoutUser,
+    updateUserProfile,
     getUsers,
     updateUserRoles,
     addCard,

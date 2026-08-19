@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap';
 import { Routes, Route } from 'react-router-dom';
-
+import EditProfileScreen from './screens/EditProfileScreen';
 import Header from './components/Header';
 import HomeScreen from './screens/HomeScreen';
 import VertigoHomeScreen from './screens/VertigoHomeScreen';
@@ -39,6 +39,7 @@ function App() {
             <Route path='/cart' element={<CartScreen />} />
             <Route path='/login' element={<LoginScreen />} />
             <Route path='/register' element={<RegisterScreen />} />
+            <Route path="/edit-profile" element={<EditProfileScreen />}/>
 
             {/* ZAŠTIĆENE RUTE ZA KORISNIKE - Mora biti ulogovan bilo koji status */}
             <Route path='' element={<PrivateRoute />}>

@@ -8,195 +8,477 @@ import {
     Table,
     ListGroup,
     Button,
+    Spinner,
+    Alert,
 } from 'react-bootstrap';
+
 import { useSelector } from 'react-redux';
-
 import { useNavigate } from 'react-router-dom';
-
+import { useGetMyOrdersQuery } from '../slices/orderApiSlice';
 
 const ProfileScreen = () => {
     const navigate = useNavigate();
 
-    // Izvlačimo userInfo iz auth stanja u Reduxu
     const { userInfo } = useSelector((state) => state.auth);
 
-    // Funkcija koja analizira Boolean vrednosti i vraća podatke o popustu i specifikacijama
+    const {
+        data: orders = [],
+        isLoading: ordersLoading,
+        error: ordersError,
+    } = useGetMyOrdersQuery();
+
+    // Broj uspešnih porudžbina
+    const successfulOrders = orders.filter(
+        (order) => order.isPaid || order.isDelivered
+    ).length;
+
+    // Nakon 5 uspešnih porudžbina korisnik postaje Stalan Gost
+    const isLoyalCustomer =
+        userInfo?.isLoyalCustomer || successfulOrders >= 5;
+
+    // Podaci o ulozi korisnika
     const getUserRoleDetails = () => {
-        if (!userInfo) return { label: 'Gost', discount: 0, note: 'Prijavite se.', color: 'secondary' };
+        if (!userInfo) {
+            return {
+                label: 'Gost',
+                discount: 0,
+                note: 'Prijavite se.',
+                color: 'secondary',
+            };
+        }
 
         if (userInfo.isAdmin) {
             return {
                 label: 'Sistemski Administrator 👑',
                 discount: 100,
-                note: 'Kao kreator platforme, imate 100% popusta i besplatan pristup svim funkcijama i lokalima.',
+                note: 'Imate 100% popusta i pristup administratorskim funkcijama.',
                 color: 'danger',
-                specifications: ['Kreiranje i brisanje objekata', 'Upravljanje ulogama korisnika', 'Uvid u kompletan promet']
             };
         }
+
         if (userInfo.isManager) {
             return {
                 label: 'Menadžer Lokala 👔',
                 discount: 100,
-                note: 'Kao menadžer objekta, sve Vaše porudžbine unutar lokala su potpuno besplatne (100% popusta).',
+                note: 'Kao menadžer imate 100% popusta na porudžbine.',
                 color: 'warning',
-                specifications: ['Uređivanje digitalnog menija', 'Pregled dnevnih izveštaja', 'Upravljanje konobarima']
             };
         }
+
         if (userInfo.isWaiter) {
             return {
                 label: 'Osoblje / Konobar ☕',
                 discount: 30,
-                note: 'Ostvarujete radnički popust od 30% na sve artikle tokom smene.',
+                note: 'Ostvarujete radnički popust od 30%.',
                 color: 'info',
-                specifications: ['Pregled i isporuka porudžbina', 'Direktna komunikacija sa šankom/kuhinjom']
-            };
-        }
-        if (userInfo.isLoyalCustomer) {
-            return {
-                label: 'VIP Stalan Gost ⭐',
-                discount: 15,
-                note: 'Hvala Vam na vernosti! Kao stalnom gostu, automatski Vam se obračunava 15% popusta na svaku porudžbinu.',
-                color: 'success',
-                specifications: ['Prioritetna priprema porudžbine', 'Učešće u loyalty programima']
             };
         }
 
-        // Default: Običan novi gost
+        if (isLoyalCustomer) {
+            return {
+                label: 'VIP Stalan Gost ⭐',
+                discount: 15,
+                note: 'Čestitamo! Nakon 5 uspešnih porudžbina ostvarili ste 15% popusta.',
+                color: 'success',
+            };
+        }
+
         return {
             label: 'Novi Gost ☕',
             discount: 0,
-            note: 'Dobrodošli! Nakon 5 uspešnih porudžbina postajete Stalan Gost i otključavate 15% popusta.',
+            note: `Napravili ste ${successfulOrders}/5 uspešnih porudžbina. Nakon 5 porudžbina dobijate 15% popusta.`,
             color: 'dark',
-            specifications: ['Pregled menija', 'Online poručivanje sa stola']
         };
     };
 
     const details = getUserRoleDetails();
 
     return (
-        <Container className='py-5'>
-            <Row className='justify-content-center'>
+        <Container className="py-5">
 
-                {/* LEVA STRANA: KARTICA SA PROFILOM I POPUSTIMA */}
-                <Col md={4} className='mb-4'>
-                    <Card style={{
-                        borderRadius: '20px',
-                        border: 'none',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                        backgroundColor: '#fbf9f9'
-                    }}>
-                        <Card.Body className='text-center p-4'>
-                            <div style={{ fontSize: '60px', marginBottom: '10px' }}>👤</div>
-                            <h3 style={{ color: '#4b2e2e', fontWeight: '700' }}>{userInfo?.name}</h3>
-                            <p className='text-muted small mb-3'>{userInfo?.email}</p>
+            <Row className="justify-content-center">
 
-                            <Badge bg={details.color} className='p-2 px-3 mb-4' style={{ fontSize: '0.9rem', borderRadius: '10px' }}>
+                {/* ================= LEVA STRANA ================= */}
+
+                <Col md={4} className="mb-4">
+
+                    <Card
+                        style={{
+                            borderRadius: '20px',
+                            border: 'none',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                            backgroundColor: '#fbf9f9',
+                        }}
+                    >
+
+                        <Card.Body className="text-center p-4">
+
+                            <div
+                                style={{
+                                    fontSize: '60px',
+                                    marginBottom: '10px',
+                                }}
+                            >
+                                👤
+                            </div>
+
+                            <h3
+                                style={{
+                                    color: '#4b2e2e',
+                                    fontWeight: '700',
+                                }}
+                            >
+                                {userInfo?.name}
+                            </h3>
+
+                            <p className="text-muted small">
+                                {userInfo?.email}
+                            </p>
+
+                            <Badge
+                                bg={details.color}
+                                className="p-2 px-3 mb-3"
+                                style={{
+                                    fontSize: '0.9rem',
+                                    borderRadius: '10px',
+                                }}
+                            >
                                 {details.label}
                             </Badge>
 
-                            <hr style={{ borderColor: '#4b2e2e', opacity: '0.2' }} />
+                            <hr />
 
-                            {/* Sekcija za popust */}
-                            <div className='my-4 p-3 rounded' style={{ backgroundColor: '#fff', border: '1px solid #eee' }}>
-                                <h6 className='text-uppercase text-muted small' style={{ letterSpacing: '1px' }}>Vaš Popust</h6>
-                                <h1 style={{ color: '#4b2e2e', fontWeight: '800', fontSize: '3rem', margin: '10px 0' }}>
+                            {/* POPUST */}
+
+                            <div
+                                className="my-4 p-3 rounded"
+                                style={{
+                                    backgroundColor: '#fff',
+                                    border: '1px solid #eee',
+                                }}
+                            >
+
+                                <h6
+                                    className="text-uppercase text-muted small"
+                                    style={{
+                                        letterSpacing: '1px',
+                                    }}
+                                >
+                                    Vaš popust
+                                </h6>
+
+                                <h1
+                                    style={{
+                                        color: '#4b2e2e',
+                                        fontWeight: '800',
+                                        fontSize: '3rem',
+                                    }}
+                                >
                                     {details.discount}%
                                 </h1>
-                                <p className='small text-muted mb-0 px-2' style={{ lineHeight: '1.4' }}>
+
+                                <p className="small text-muted mb-0">
                                     {details.note}
                                 </p>
+
                             </div>
 
-                            <hr style={{ borderColor: '#4b2e2e', opacity: '0.2' }} />
+                            {/* BROJ PORUDŽBINA */}
 
-                            <div className='text-start mt-3'>
+                            <div
+                                className="p-3 mb-4 rounded"
+                                style={{
+                                    backgroundColor: '#fff',
+                                    border: '1px solid #eee',
+                                }}
+                            >
+
+                                <h6 className="text-muted">
+                                    🛍️ Uspešne porudžbine
+                                </h6>
+
+                                <h3
+                                    style={{
+                                        color: '#4b2e2e',
+                                        fontWeight: '700',
+                                    }}
+                                >
+                                    {successfulOrders}
+                                </h3>
+
+                                {!isLoyalCustomer && (
+                                    <small className="text-muted">
+                                        Još{' '}
+                                        {Math.max(
+                                            0,
+                                            5 - successfulOrders
+                                        )}{' '}
+                                        porudžbina do statusa Stalnog Gosta
+                                    </small>
+                                )}
+
+                                {isLoyalCustomer && (
+                                    <small className="text-success fw-bold">
+                                        ⭐ Stalni Gost
+                                    </small>
+                                )}
+
+                            </div>
+
+                            {/* KARTICE */}
+
+                            <div className="text-start">
+
                                 <h6
-                                    className='fw-bold mb-3'
-                                    style={{ color: '#4b2e2e' }}
+                                    className="fw-bold mb-3"
+                                    style={{
+                                        color: '#4b2e2e',
+                                    }}
                                 >
                                     💳 Sačuvane kartice
                                 </h6>
 
                                 {userInfo?.savedCards?.length > 0 ? (
-                                    <ListGroup variant='flush'>
-                                        {userInfo.savedCards.map((card, index) => (
-                                            <ListGroup.Item
-                                                key={index}
-                                                className='bg-transparent'
-                                            >
-                                                <strong>{card.cardHolder}</strong>
-                                                <br />
-                                                **** **** ****{' '}
-                                                {card.cardNumber.slice(-4)}
-                                                <br />
-                                                Ističe: {card.expiryDate}
-                                            </ListGroup.Item>
-                                        ))}
+
+                                    <ListGroup variant="flush">
+
+                                        {userInfo.savedCards.map(
+                                            (card, index) => (
+
+                                                <ListGroup.Item
+                                                    key={index}
+                                                    className="bg-transparent"
+                                                >
+
+                                                    <strong>
+                                                        {card.cardHolder}
+                                                    </strong>
+
+                                                    <br />
+
+                                                    {card.brand} • ****{' '}
+                                                    {card.last4}
+
+                                                    <br />
+
+                                                    <small>
+                                                        Ističe:{' '}
+                                                        {card.expiryDate}
+                                                    </small>
+
+                                                </ListGroup.Item>
+
+                                            )
+                                        )}
+
                                     </ListGroup>
+
                                 ) : (
-                                    <p className='text-muted small'>
+
+                                    <p className="text-muted small">
                                         Nemate sačuvanih kartica.
                                     </p>
+
                                 )}
+
                                 <Button
-                                    variant='dark'
-                                    size='sm'
-                                    className='mt-3'
-                                    onClick={() => navigate('/cards')}
+                                    variant="dark"
+                                    size="sm"
+                                    className="mt-3 w-100"
+                                    onClick={() =>
+                                        navigate('/cards')
+                                    }
                                 >
                                     ➕ Dodaj karticu
                                 </Button>
 
                             </div>
 
+                            {/* IZMENI PODATKE */}
+
+                            <Button
+                                variant="outline-dark"
+                                className="mt-3 w-100"
+                                onClick={() =>
+                                    navigate('/edit-profile')
+                                }
+                            >
+                                ✏️ Izmeni podatke
+                            </Button>
 
                         </Card.Body>
+
                     </Card>
+
                 </Col>
 
-                {/* DESNA STRANA: ISTORIJA PORUČIVANJA */}
+                {/* ================= DESNA STRANA ================= */}
+
                 <Col md={8}>
-                    <Card style={{
-                        borderRadius: '20px',
-                        border: 'none',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                        backgroundColor: '#fbf9f9'
-                    }}>
-                        <Card.Body className='p-4'>
-                            <h4 className='mb-4 d-flex align-items-center gap-2' style={{ color: '#4b2e2e', fontWeight: '700' }}>
+
+                    <Card
+                        style={{
+                            borderRadius: '20px',
+                            border: 'none',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                            backgroundColor: '#fbf9f9',
+                        }}
+                    >
+
+                        <Card.Body className="p-4">
+
+                            <h4
+                                className="mb-4"
+                                style={{
+                                    color: '#4b2e2e',
+                                    fontWeight: '700',
+                                }}
+                            >
                                 📜 Istorija porudžbina
                             </h4>
 
-                            <Table striped hover responsive className='align-middle bg-white rounded shadow-sm' style={{ overflow: 'hidden' }}>
-                                <thead style={{ backgroundColor: '#958b90', color: '#fff' }}>
-                                    <tr>
-                                        <th className='p-3'>ID Porudžbine</th>
-                                        <th className='p-3'>Datum</th>
-                                        <th className='p-3'>Ukupno</th>
-                                        <th className='p-3'>Popust</th>
-                                        <th className='p-3'>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {/* Statičan primer, kasnije mapiraš prave podatke */}
-                                    <tr>
-                                        <td className='p-3 fw-bold'>#84920</td>
-                                        <td className='p-3'>31.05.2026.</td>
-                                        <td className='p-3'>{details.discount === 100 ? '0 RSD' : '1.450 RSD'}</td>
-                                        <td className='p-3'>{details.discount}%</td>
-                                        <td className='p-3'>
-                                            <Badge bg="success" className='p-2' style={{ borderRadius: '5px' }}>
-                                                Isporučeno
-                                            </Badge>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </Table>
+                            {ordersLoading && (
+                                <div className="text-center py-4">
+                                    <Spinner animation="border" />
+                                    <p className="mt-2">
+                                        Učitavanje porudžbina...
+                                    </p>
+                                </div>
+                            )}
+
+                            {ordersError && (
+                                <Alert variant="danger">
+                                    Nije moguće učitati istoriju
+                                    porudžbina.
+                                </Alert>
+                            )}
+
+                            {!ordersLoading &&
+                                !ordersError &&
+                                orders.length === 0 && (
+                                    <Alert variant="info">
+                                        Još uvek nemate porudžbina.
+                                    </Alert>
+                                )}
+
+                            {!ordersLoading &&
+                                !ordersError &&
+                                orders.length > 0 && (
+
+                                    <Table
+                                        striped
+                                        hover
+                                        responsive
+                                        className="align-middle bg-white"
+                                    >
+
+                                        <thead
+                                            style={{
+                                                backgroundColor: '#958b90',
+                                                color: '#fff',
+                                            }}
+                                        >
+
+                                            <tr>
+
+                                                <th>ID</th>
+
+                                                <th>Datum</th>
+
+                                                <th>Način plaćanja</th>
+
+                                                <th>Ukupno</th>
+
+                                                <th>Popust</th>
+
+                                                <th>Status</th>
+
+                                            </tr>
+
+                                        </thead>
+
+                                        <tbody>
+
+                                            {orders.map((order) => (
+
+                                                <tr key={order._id}>
+
+                                                    <td>
+                                                        <strong>
+                                                            #
+                                                            {order._id
+                                                                .slice(-6)
+                                                                .toUpperCase()}
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        {new Date(
+                                                            order.createdAt
+                                                        ).toLocaleDateString(
+                                                            'sr-RS'
+                                                        )}
+                                                    </td>
+
+                                                    <td>
+                                                        {order.paymentMethod}
+                                                    </td>
+
+                                                    <td>
+                                                        {Number(
+                                                            order.totalPrice
+                                                        ).toFixed(2)}{' '}
+                                                        RSD
+                                                    </td>
+
+                                                    <td>
+                                                        {order.discountPercentage ||
+                                                            0}
+                                                        %
+                                                    </td>
+
+                                                    <td>
+
+                                                        {order.isDelivered ? (
+
+                                                            <Badge bg="success">
+                                                                Isporučeno
+                                                            </Badge>
+
+                                                        ) : order.isPaid ? (
+
+                                                            <Badge bg="primary">
+                                                                Plaćeno
+                                                            </Badge>
+
+                                                        ) : (
+
+                                                            <Badge bg="warning">
+                                                                Na čekanju
+                                                            </Badge>
+
+                                                        )}
+
+                                                    </td>
+
+                                                </tr>
+
+                                            ))}
+
+                                        </tbody>
+
+                                    </Table>
+
+                                )}
+
                         </Card.Body>
+
                     </Card>
+
                 </Col>
 
             </Row>
+
         </Container>
     );
 };
