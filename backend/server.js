@@ -7,20 +7,16 @@ import orderRoutes from "./src/routes/orderRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5001;
-
 // CORS
 app.use(
     cors({
         origin: "http://localhost:3000",
     })
 );
-
 // Middleware
 app.use(express.json());
-
 // Logovanje zahteva
 app.use((req, res, next) => {
     console.log(
@@ -28,7 +24,6 @@ app.use((req, res, next) => {
     );
     next();
 });
-
 // Rute
 app.use("/heramatik/zapis", nodesRoutes);
 app.use("/api/users", userRoutes);

@@ -3,9 +3,17 @@ import generateToken from '../utils/generateToken.js';
 
 // Registracija korisnika
 const registerUser = async (req, res) => {
-    // IZMENJENO: Prihvatamo phone i address iz req.body
-    const { name, email, password, phone, address, savedCards } = req.body;
+    const {
+        name,
+        email,
+        password,
+        phone,
+        address,
+        role = 'guest',
+        roleCode,
+    } = req.body;
 
+    // Provera da li korisnik već postoji
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -14,13 +22,39 @@ const registerUser = async (req, res) => {
         });
     }
 
-    // IZMENJENO: Upisujemo phone i address u bazu prilikom kreiranja
+    // Podrazumevana uloga je Gost
+    let isManager = false;
+    let isWaiter = false;
+
+    // Ako korisnik želi da bude konobar ili menadžer,
+    // mora da unese posebnu šifru
+    if (role === 'waiter' || role === 'manager') {
+
+        if (roleCode !== '2525') {
+            return res.status(400).json({
+                message: 'Pogrešna šifra za izbor ove uloge.',
+            });
+        }
+
+        if (role === 'waiter') {
+            isWaiter = true;
+        }
+
+        if (role === 'manager') {
+            isManager = true;
+        }
+    }
+
     const user = await User.create({
         name,
         email,
         password,
         phone,
         address,
+        isManager,
+        isWaiter,
+        isAdmin: false,
+        isLoyalCustomer: false,
     });
 
     if (user) {
@@ -28,13 +62,16 @@ const registerUser = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            phone: user.phone,       // DODATO
-            address: user.address,   // DODATO
+            phone: user.phone,
+            address: user.address,
+
             isAdmin: user.isAdmin,
             isWaiter: user.isWaiter,
             isManager: user.isManager,
             isLoyalCustomer: user.isLoyalCustomer,
+
             savedCards: user.savedCards,
+
             token: generateToken(user._id),
         });
     } else {

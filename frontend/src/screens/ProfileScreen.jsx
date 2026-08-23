@@ -36,7 +36,9 @@ const ProfileScreen = () => {
     const isLoyalCustomer =
         userInfo?.isLoyalCustomer || successfulOrders >= 5;
 
-    // Podaci o ulozi korisnika
+    // =========================
+    // PODACI O ULOZI KORISNIKA
+    // =========================
     const getUserRoleDetails = () => {
         if (!userInfo) {
             return {
@@ -95,13 +97,13 @@ const ProfileScreen = () => {
 
     return (
         <Container className="py-5">
-
             <Row className="justify-content-center">
 
-                {/* ================= LEVA STRANA ================= */}
+                {/* =========================
+                    LEVA STRANA - PROFIL
+                ========================== */}
 
                 <Col md={4} className="mb-4">
-
                     <Card
                         style={{
                             borderRadius: '20px',
@@ -110,7 +112,6 @@ const ProfileScreen = () => {
                             backgroundColor: '#fbf9f9',
                         }}
                     >
-
                         <Card.Body className="text-center p-4">
 
                             <div
@@ -148,7 +149,9 @@ const ProfileScreen = () => {
 
                             <hr />
 
-                            {/* POPUST */}
+                            {/* =================
+                                POPUST
+                            ================= */}
 
                             <div
                                 className="my-4 p-3 rounded"
@@ -157,12 +160,9 @@ const ProfileScreen = () => {
                                     border: '1px solid #eee',
                                 }}
                             >
-
                                 <h6
                                     className="text-uppercase text-muted small"
-                                    style={{
-                                        letterSpacing: '1px',
-                                    }}
+                                    style={{ letterSpacing: '1px' }}
                                 >
                                     Vaš popust
                                 </h6>
@@ -180,10 +180,11 @@ const ProfileScreen = () => {
                                 <p className="small text-muted mb-0">
                                     {details.note}
                                 </p>
-
                             </div>
 
-                            {/* BROJ PORUDŽBINA */}
+                            {/* =================
+                                PORUDŽBINE
+                            ================= */}
 
                             <div
                                 className="p-3 mb-4 rounded"
@@ -192,7 +193,6 @@ const ProfileScreen = () => {
                                     border: '1px solid #eee',
                                 }}
                             >
-
                                 <h6 className="text-muted">
                                     🛍️ Uspešne porudžbine
                                 </h6>
@@ -222,10 +222,11 @@ const ProfileScreen = () => {
                                         ⭐ Stalni Gost
                                     </small>
                                 )}
-
                             </div>
 
-                            {/* KARTICE */}
+                            {/* =================
+                                KARTICE
+                            ================= */}
 
                             <div className="text-start">
 
@@ -249,7 +250,6 @@ const ProfileScreen = () => {
                                                     key={index}
                                                     className="bg-transparent"
                                                 >
-
                                                     <strong>
                                                         {card.cardHolder}
                                                     </strong>
@@ -267,7 +267,6 @@ const ProfileScreen = () => {
                                                     </small>
 
                                                 </ListGroup.Item>
-
                                             )
                                         )}
 
@@ -294,7 +293,9 @@ const ProfileScreen = () => {
 
                             </div>
 
-                            {/* IZMENI PODATKE */}
+                            {/* =================
+                                IZMENA PODATAKA
+                            ================= */}
 
                             <Button
                                 variant="outline-dark"
@@ -307,12 +308,12 @@ const ProfileScreen = () => {
                             </Button>
 
                         </Card.Body>
-
                     </Card>
-
                 </Col>
 
-                {/* ================= DESNA STRANA ================= */}
+                {/* =========================
+                    DESNA STRANA - PORUDŽBINE
+                ========================== */}
 
                 <Col md={8}>
 
@@ -337,14 +338,21 @@ const ProfileScreen = () => {
                                 📜 Istorija porudžbina
                             </h4>
 
+                            {/* LOADING */}
+
                             {ordersLoading && (
                                 <div className="text-center py-4">
+
                                     <Spinner animation="border" />
+
                                     <p className="mt-2">
                                         Učitavanje porudžbina...
                                     </p>
+
                                 </div>
                             )}
+
+                            {/* ERROR */}
 
                             {ordersError && (
                                 <Alert variant="danger">
@@ -353,13 +361,19 @@ const ProfileScreen = () => {
                                 </Alert>
                             )}
 
+                            {/* NEMA PORUDŽBINA */}
+
                             {!ordersLoading &&
                                 !ordersError &&
                                 orders.length === 0 && (
+
                                     <Alert variant="info">
                                         Još uvek nemate porudžbina.
                                     </Alert>
+
                                 )}
+
+                            {/* PORUDŽBINE */}
 
                             {!ordersLoading &&
                                 !ordersError &&
@@ -380,19 +394,12 @@ const ProfileScreen = () => {
                                         >
 
                                             <tr>
-
                                                 <th>ID</th>
-
                                                 <th>Datum</th>
-
-                                                <th>Način plaćanja</th>
-
+                                                <th>Plaćanje</th>
                                                 <th>Ukupno</th>
-
                                                 <th>Popust</th>
-
                                                 <th>Status</th>
-
                                             </tr>
 
                                         </thead>
@@ -478,7 +485,6 @@ const ProfileScreen = () => {
                 </Col>
 
             </Row>
-
         </Container>
     );
 };

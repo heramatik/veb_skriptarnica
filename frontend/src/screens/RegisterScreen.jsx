@@ -4,13 +4,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { useRegisterMutation } from '../slices/userApiSlice';
 import { setCredentials } from '../slices/authSlice';
+
 const RegisterScreen = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState(''); // DODATO: Stanje za adresu
+    const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+    // NOVO
+    const [role, setRole] = useState('guest');
+    const [roleCode, setRoleCode] = useState('');
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -26,8 +31,15 @@ const RegisterScreen = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+
         if (password !== confirmPassword) {
             alert('Lozinke se ne podudaraju!');
+            return;
+        }
+
+        // Ako je izabrana službena uloga, mora postojati šifra
+        if ((role === 'waiter' || role === 'manager') && !roleCode) {
+            alert('Morate uneti šifru za izbor ove uloge.');
             return;
         }
 
@@ -38,13 +50,15 @@ const RegisterScreen = () => {
                 phone,
                 address,
                 password,
+                role,
+                roleCode,
             }).unwrap();
 
             dispatch(setCredentials(res));
 
             navigate('/');
         } catch (err) {
-            alert(err?.data?.message || err.error);
+            alert(err?.data?.message || 'Greška prilikom registracije');
         }
     };
 
@@ -52,7 +66,8 @@ const RegisterScreen = () => {
         <div
             style={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                background:
+                    'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
                 padding: '40px 0',
             }}
         >
@@ -64,92 +79,214 @@ const RegisterScreen = () => {
                         boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
                     }}
                 >
-                    <Card.Body className='p-5'>
+                    <Card.Body className="p-5">
+
                         <h2
-                            className='text-center mb-4'
-                            style={{ color: '#441212', fontWeight: 'bold' }}
+                            className="text-center mb-4"
+                            style={{
+                                color: '#441212',
+                                fontWeight: 'bold',
+                            }}
                         >
                             📝 Registracija Naloga
                         </h2>
 
                         <Form onSubmit={submitHandler}>
 
-                            {/* IME I PREZIME */}
-                            <Form.Group className='mb-3' controlId='name'>
-                                <Form.Label>Ime i prezime <small style={{ color: '#6c757d' }}>(npr. Marko Marković)</small></Form.Label>
+                            {/* IME */}
+                            <Form.Group
+                                className="mb-3"
+                                controlId="name"
+                            >
+                                <Form.Label>
+                                    Ime i prezime
+                                </Form.Label>
+
                                 <Form.Control
-                                    type='text'
-                                    placeholder='Zoran Zorić'
+                                    type="text"
+                                    placeholder="Zoran Zorić"
                                     value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    onChange={(e) =>
+                                        setName(e.target.value)
+                                    }
                                     required
                                 />
                             </Form.Group>
 
-                            {/* EMAIL ADRESA */}
-                            <Form.Group className='mb-3' controlId='email'>
-                                <Form.Label>Email adresa <small style={{ color: '#6c757d' }}>(format: primer@gmail.com)</small></Form.Label>
+                            {/* EMAIL */}
+                            <Form.Group
+                                className="mb-3"
+                                controlId="email"
+                            >
+                                <Form.Label>
+                                    Email adresa
+                                </Form.Label>
+
                                 <Form.Control
-                                    type='email'
-                                    placeholder='tvoj-mejl@gmail.com'
+                                    type="email"
+                                    placeholder="tvoj-mejl@gmail.com"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) =>
+                                        setEmail(e.target.value)
+                                    }
                                     required
                                 />
                             </Form.Group>
 
-                            {/* BROJ TELEFONA */}
-                            <Form.Group className='mb-3' controlId='phone'>
-                                <Form.Label>Broj telefona <small style={{ color: '#6c757d' }}>(format: 06XXXXXXXX)</small></Form.Label>
+                            {/* TELEFON */}
+                            <Form.Group
+                                className="mb-3"
+                                controlId="phone"
+                            >
+                                <Form.Label>
+                                    Broj telefona
+                                </Form.Label>
+
                                 <Form.Control
-                                    type='tel'
-                                    pattern='[0-9]{9,11}' // Prihvata samo brojeve dužine između 9 i 11 cifara
-                                    placeholder='0641234567'
+                                    type="tel"
+                                    pattern="[0-9]{9,11}"
+                                    placeholder="0641234567"
                                     value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    onChange={(e) =>
+                                        setPhone(e.target.value)
+                                    }
                                     required
                                 />
                             </Form.Group>
 
                             {/* ADRESA */}
-                            <Form.Group className='mb-3' controlId='address'>
-                                <Form.Label>Adresa stanovanja <small style={{ color: '#6c757d' }}>(Ulica, broj, grad)</small></Form.Label>
+                            <Form.Group
+                                className="mb-3"
+                                controlId="address"
+                            >
+                                <Form.Label>
+                                    Adresa stanovanja
+                                </Form.Label>
+
                                 <Form.Control
-                                    type='text'
-                                    placeholder='Bulevar Oslobođenja 21, Novi Sad'
+                                    type="text"
+                                    placeholder="Bulevar Oslobođenja 21, Novi Sad"
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
+                                    onChange={(e) =>
+                                        setAddress(e.target.value)
+                                    }
                                     required
                                 />
                             </Form.Group>
 
+                            {/* ULOGA */}
+                            <Form.Group
+                                className="mb-3"
+                                controlId="role"
+                            >
+                                <Form.Label>
+                                    <strong>👤 Uloga korisnika</strong>
+                                </Form.Label>
+
+                                <Form.Select
+                                    value={role}
+                                    onChange={(e) => {
+                                        setRole(e.target.value);
+
+                                        // Ako se vrati na gosta,
+                                        // brišemo šifru
+                                        if (e.target.value === 'guest') {
+                                            setRoleCode('');
+                                        }
+                                    }}
+                                >
+                                    <option value="guest">
+                                        ☕ Gost
+                                    </option>
+
+                                    <option value="waiter">
+                                        🧑‍🍳 Konobar
+                                    </option>
+
+                                    <option value="manager">
+                                        👔 Menadžer
+                                    </option>
+                                </Form.Select>
+
+                                <Form.Text className="text-muted">
+                                    Gost ne zahteva dodatnu šifru.
+                                    Za Konobara i Menadžera potrebna je
+                                    posebna šifra.
+                                </Form.Text>
+                            </Form.Group>
+
+                            {/* ŠIFRA ZA ULOGU */}
+                            {(role === 'waiter' ||
+                                role === 'manager') && (
+                                <Form.Group
+                                    className="mb-3"
+                                    controlId="roleCode"
+                                >
+                                    <Form.Label>
+                                        🔐 Šifra za izbor uloge
+                                    </Form.Label>
+
+                                    <Form.Control
+                                        type="password"
+                                        placeholder="Unesite šifru"
+                                        value={roleCode}
+                                        onChange={(e) =>
+                                            setRoleCode(e.target.value)
+                                        }
+                                        required
+                                    />
+
+                                    <Form.Text className="text-muted">
+                                        Ova šifra je potrebna za
+                                        registraciju zaposlenih.
+                                    </Form.Text>
+                                </Form.Group>
+                            )}
+
                             {/* LOZINKA */}
-                            <Form.Group className='mb-3' controlId='password'>
-                                <Form.Label>Lozinka</Form.Label>
+                            <Form.Group
+                                className="mb-3"
+                                controlId="password"
+                            >
+                                <Form.Label>
+                                    Lozinka
+                                </Form.Label>
+
                                 <Form.Control
-                                    type='password'
-                                    placeholder='Unesite lozinku'
+                                    type="password"
+                                    placeholder="Unesite lozinku"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
                                     required
                                 />
                             </Form.Group>
 
                             {/* POTVRDA LOZINKE */}
-                            <Form.Group className='mb-4' controlId='confirmPassword'>
-                                <Form.Label>Potvrdite lozinku</Form.Label>
+                            <Form.Group
+                                className="mb-4"
+                                controlId="confirmPassword"
+                            >
+                                <Form.Label>
+                                    Potvrdite lozinku
+                                </Form.Label>
+
                                 <Form.Control
-                                    type='password'
-                                    placeholder='Ponovite lozinku'
+                                    type="password"
+                                    placeholder="Ponovite lozinku"
                                     value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    onChange={(e) =>
+                                        setConfirmPassword(e.target.value)
+                                    }
                                     required
                                 />
                             </Form.Group>
 
+                            {/* REGISTRACIJA */}
                             <Button
-                                type='submit'
-                                className='w-100 mb-3'
+                                type="submit"
+                                className="w-100 mb-3"
                                 disabled={isLoading}
                                 style={{
                                     backgroundColor: '#441212',
@@ -159,13 +296,22 @@ const RegisterScreen = () => {
                                     fontWeight: '600',
                                 }}
                             >
-                                {isLoading ? 'Registracija...' : 'Registruj se ☕'}
+                                {isLoading
+                                    ? 'Registracija...'
+                                    : 'Registruj se ☕'}
                             </Button>
 
-                            <Row className='py-2 text-center'>
+                            <Row className="py-2 text-center">
                                 <Col>
                                     Već imate nalog?{' '}
-                                    <Link to='/login' style={{ color: '#441212', fontWeight: 'bold' }}>
+
+                                    <Link
+                                        to="/login"
+                                        style={{
+                                            color: '#441212',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
                                         Prijavite se
                                     </Link>
                                 </Col>
