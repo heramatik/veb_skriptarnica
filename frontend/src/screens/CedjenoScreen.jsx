@@ -16,14 +16,8 @@ import ScrollToTopButton from '../components/ScrollToTopButton';
 const CedjenoScreen = () => {
 
     const dispatch = useDispatch();
-
     const addToCartHandler = (product) => {
-        dispatch(
-            addToCart({
-                ...product,
-                qty: 1,
-            })
-        );
+        dispatch(addToCart(product));
     };
     const juices = [
         { id: 201, name: 'Ceđena narandža', price: 335 },

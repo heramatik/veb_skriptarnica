@@ -6,7 +6,7 @@ const initialState = localStorage.getItem("cart")
     : {
         cartItems: [],
         shippingAddress: {},
-        paymentMethod: "PayPal",
+        paymentMethod: "Gotovina",
         selectedCard: null,
         discountPercentage: 0,
         discountAmount: 0,
@@ -22,15 +22,16 @@ const cartSlice = createSlice({
             const item = action.payload;
 
             const existItem = state.cartItems.find(
-                (x) => x._id === item._id
+                (x) => x.id === item.id
             );
 
             if (existItem) {
-                state.cartItems = state.cartItems.map((x) =>
-                    x._id === existItem._id ? item : x
-                );
+                existItem.qty += 1;
             } else {
-                state.cartItems = [...state.cartItems, item];
+                state.cartItems.push({
+                    ...item,
+                    qty: 1,
+                });
             }
 
             return updateCart(state);
@@ -38,7 +39,7 @@ const cartSlice = createSlice({
 
         removeFromCart: (state, action) => {
             state.cartItems = state.cartItems.filter(
-                (x) => x._id !== action.payload
+                (x) => x.id !== action.payload
             );
 
             return updateCart(state);
@@ -74,7 +75,7 @@ const cartSlice = createSlice({
 
         increaseQty: (state, action) => {
             const item = state.cartItems.find(
-                (x) => x._id === action.payload
+                (x) => x.id === action.payload
             );
 
             if (item) {
@@ -86,7 +87,7 @@ const cartSlice = createSlice({
 
         decreaseQty: (state, action) => {
             const item = state.cartItems.find(
-                (x) => x._id === action.payload
+                (x) => x.id === action.payload
             );
 
             if (item && item.qty > 1) {

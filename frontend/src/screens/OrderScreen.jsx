@@ -6,44 +6,78 @@ import {
     Row,
     Col,
     Card,
-    ListGroup,
     Button,
+    Alert,
+    Spinner,
 } from 'react-bootstrap';
+
 import { clearCart } from '../slices/cartSlice';
-import {
-    useCreateOrderMutation,
-    useGetMyOrdersQuery,
-} from '../slices/orderApiSlice';
+import { useCreateOrderMutation } from '../slices/orderApiSlice';
 
 const OrderScreen = () => {
     const cart = useSelector((state) => state.cart);
 
-    // IZMENJENO: Direktno izvlačimo preračunate finansije koje je spremio cartUtils/Redux
     const {
-        cartItems,
-        shippingAddress,
-        paymentMethod,
-        selectedCard,
-        discountPercentage,
-        discountAmount,
-        totalPrice,
+        cartItems = [],
+        shippingAddress = {},
+        paymentMethod = 'Gotovina',
+        selectedCard = null,
+        discountPercentage = 0,
+        discountAmount = 0,
+        totalPrice = 0,
     } = cart;
-
-    // DODATO: Računamo čistu cenu artikala pre popusta, radi lepšeg prikaza u specifikaciji
-    const rawItemsPrice = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const [orderPlaced, setOrderPlaced] = useState(false);
 
-    const placeOrderHandler = () => {
-        setOrderPlaced(true);
-        dispatch(clearCart());
+    const [
+        createOrder,
+        { isLoading: loadingCreateOrder, error: createOrderError },
+    ] = useCreateOrderMutation();
 
-        setTimeout(() => {
-            navigate('/');
-        }, 3000);
+    // Cena svih artikala pre popusta
+    const rawItemsPrice = cartItems.reduce(
+        (acc, item) => acc + item.price * item.qty,
+        0
+    );
+
+    // Broj artikala
+    const totalItems = cartItems.reduce(
+        (acc, item) => acc + item.qty,
+        0
+    );
+
+    const placeOrderHandler = async () => {
+
+        try {
+            console.log('ŠALJEM PORUDŽBINU:', {
+                orderItems: cartItems,
+                shippingAddress,
+                paymentMethod,
+                selectedCard,
+            });
+            await createOrder({
+                orderItems: cartItems,
+                shippingAddress,
+                paymentMethod,
+                selectedCard,
+            }).unwrap();
+
+            // Čistimo korpu tek nakon uspešnog čuvanja
+            dispatch(clearCart());
+
+            setOrderPlaced(true);
+
+
+            setTimeout(() => {
+                navigate('/profile');
+            }, 3000);
+
+        } catch (error) {
+            console.error('Greška pri kreiranju porudžbine:', error);
+        }
     };
 
     if (cartItems.length === 0 && !orderPlaced) {
@@ -56,7 +90,8 @@ const OrderScreen = () => {
             <div
                 style={{
                     minHeight: '100vh',
-                    background: 'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                    background:
+                        'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -67,13 +102,26 @@ const OrderScreen = () => {
                         padding: '50px',
                         borderRadius: '30px',
                         textAlign: 'center',
+                        border: 'none',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
                     }}
                 >
                     <h1>✅ Porudžbina poslata!</h1>
-                    <p>Vaša porudžbina je uspešno prosleđena.</p>
+
+                    <p className="mt-3">
+                        Vaša porudžbina je uspešno sačuvana.
+                    </p>
+
                     <p>
                         Konobar će uskoro doneti porudžbinu za sto{' '}
-                        <strong>{shippingAddress.tableNumber}</strong>.
+                        <strong>
+                            {shippingAddress.tableNumber}
+                        </strong>
+                        .
+                    </p>
+
+                    <p className="text-muted">
+                        Preusmeravanje na profil...
                     </p>
                 </Card>
             </div>
@@ -84,7 +132,8 @@ const OrderScreen = () => {
         <div
             style={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                background:
+                    'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
                 padding: '40px 0',
             }}
         >
@@ -100,33 +149,51 @@ const OrderScreen = () => {
                     ☕ Pregled porudžbine
                 </h1>
 
+                {createOrderError && (
+                    <Alert variant="danger">
+                        {createOrderError?.data?.message ||
+                            'Greška prilikom kreiranja porudžbine.'}
+                    </Alert>
+                )}
+
                 <Row>
+                    {/* =========================
+                        PODACI KUPCA
+                    ========================== */}
+
                     <Col md={8}>
                         <Card
-                            className='mb-4'
+                            className="mb-4"
                             style={{
                                 border: 'none',
                                 borderRadius: '25px',
-                                boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                                boxShadow:
+                                    '0 8px 20px rgba(0,0,0,0.1)',
                             }}
                         >
                             <Card.Body>
-                                <h4 className='mb-4'>👤 Podaci kupca</h4>
+                                <h4 className="mb-4">
+                                    👤 Podaci kupca
+                                </h4>
 
                                 <p>
-                                    <strong>Ime:</strong> {shippingAddress.name}
+                                    <strong>Ime:</strong>{' '}
+                                    {shippingAddress.name}
                                 </p>
 
                                 <p>
-                                    <strong>Telefon:</strong> {shippingAddress.phone}
+                                    <strong>Telefon:</strong>{' '}
+                                    {shippingAddress.phone}
                                 </p>
 
                                 <p>
-                                    <strong>Broj stola:</strong> {shippingAddress.tableNumber}
+                                    <strong>Broj stola:</strong>{' '}
+                                    {shippingAddress.tableNumber}
                                 </p>
 
                                 <p>
-                                    <strong>Način plaćanja:</strong> {paymentMethod}
+                                    <strong>Način plaćanja:</strong>{' '}
+                                    {paymentMethod}
                                 </p>
 
                                 {paymentMethod === 'Kartica' &&
@@ -143,38 +210,59 @@ const OrderScreen = () => {
                                                     '0 10px 25px rgba(0,0,0,0.2)',
                                             }}
                                         >
-                                            <div className='d-flex justify-content-between mb-4'>
-                                                <h5>💳 Heramatik Card</h5>
-                                                <span>VISA</span>
+                                            <div className="d-flex justify-content-between mb-4">
+                                                <h5>
+                                                    💳 Heramatik Card
+                                                </h5>
+
+                                                <span>
+                                                    {selectedCard.brand ||
+                                                        'CARD'}
+                                                </span>
                                             </div>
+
                                             <h4
                                                 style={{
                                                     letterSpacing: '3px',
                                                     marginBottom: '25px',
                                                 }}
                                             >
-                                                **** **** **** {selectedCard}
+                                                **** **** ****{' '}
+                                                {selectedCard.last4 ||
+                                                    selectedCard}
                                             </h4>
 
-                                            <div className='d-flex justify-content-between'>
-                                                <div>
-                                                    <small>Vlasnik</small>
+                                            {selectedCard.cardHolder && (
+                                                <div className="d-flex justify-content-between">
                                                     <div>
-                                                        {selectedCard.cardHolder}
-                                                    </div>
-                                                </div>
+                                                        <small>
+                                                            Vlasnik
+                                                        </small>
 
-                                                <div>
-                                                    <small>Ističe</small>
+                                                        <div>
+                                                            {
+                                                                selectedCard.cardHolder
+                                                            }
+                                                        </div>
+                                                    </div>
+
                                                     <div>
-                                                        {selectedCard.expiryDate}
+                                                        <small>
+                                                            Ističe
+                                                        </small>
+
+                                                        <div>
+                                                            {
+                                                                selectedCard.expiryDate
+                                                            }
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
                                     )}
 
-                                <p className='mt-4'>
+                                <p className="mt-4">
                                     <strong>Napomena:</strong>{' '}
                                     {shippingAddress.note || 'Nema'}
                                 </p>
@@ -182,49 +270,97 @@ const OrderScreen = () => {
                         </Card>
                     </Col>
 
+                    {/* =========================
+                        UKUPNA CENA
+                    ========================== */}
+
                     <Col md={4}>
                         <Card
                             style={{
                                 border: 'none',
                                 borderRadius: '25px',
-                                boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                                boxShadow:
+                                    '0 8px 20px rgba(0,0,0,0.1)',
                             }}
                         >
                             <Card.Body>
-                                <h4 style={{ color: '#441212', fontWeight: 'bold' }}>Ukupno</h4>
+                                <h4
+                                    style={{
+                                        color: '#441212',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    Ukupno
+                                </h4>
+
                                 <hr />
 
-                                <div className='d-flex justify-content-between mb-2'>
+                                <div className="d-flex justify-content-between mb-2">
                                     <span>Artikala:</span>
-                                    <strong>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</strong>
+
+                                    <strong>
+                                        {totalItems}
+                                    </strong>
                                 </div>
 
-                                <div className='d-flex justify-content-between mb-2'>
+                                <div className="d-flex justify-content-between mb-2">
                                     <span>Cena artikala:</span>
-                                    <span>{rawItemsPrice} RSD</span>
+
+                                    <span>
+                                        {rawItemsPrice.toFixed(2)} RSD
+                                    </span>
                                 </div>
 
-                                {/* IZMENJENO: Ako postoji popust u Reduxu, prikazujemo ga kao uštedu */}
                                 {Number(discountPercentage) > 0 && (
-                                    <div className='d-flex justify-content-between mb-2' style={{ color: '#28a745', fontWeight: '600' }}>
-                                        <span>Ušteda ({discountPercentage}%):</span>
-                                        <strong>-{discountAmount} RSD</strong>
+                                    <div
+                                        className="d-flex justify-content-between mb-2"
+                                        style={{
+                                            color: '#28a745',
+                                            fontWeight: '600',
+                                        }}
+                                    >
+                                        <span>
+                                            Ušteda (
+                                            {discountPercentage}%):
+                                        </span>
+
+                                        <strong>
+                                            -{Number(
+                                                discountAmount
+                                            ).toFixed(2)}{' '}
+                                            RSD
+                                        </strong>
                                     </div>
                                 )}
 
                                 <hr />
 
-                                {/* IZMENJENO: Prikazuje se realna finalna cena (totalPrice) iz stanja */}
-                                <div className='d-flex justify-content-between mb-3 align-items-center'>
-                                    <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Za uplatu:</span>
-                                    <strong style={{ color: '#441212', fontSize: '1.4rem', fontWeight: '800' }}>
-                                        {totalPrice} RSD
+                                <div className="d-flex justify-content-between mb-3 align-items-center">
+                                    <span
+                                        style={{
+                                            fontSize: '1.1rem',
+                                            fontWeight: '500',
+                                        }}
+                                    >
+                                        Za uplatu:
+                                    </span>
+
+                                    <strong
+                                        style={{
+                                            color: '#441212',
+                                            fontSize: '1.4rem',
+                                            fontWeight: '800',
+                                        }}
+                                    >
+                                        {Number(totalPrice).toFixed(2)} RSD
                                     </strong>
                                 </div>
 
                                 <Button
-                                    className='w-100'
+                                    className="w-100"
                                     onClick={placeOrderHandler}
+
+                                    disabled={loadingCreateOrder}
                                     style={{
                                         backgroundColor: '#441212',
                                         border: 'none',
@@ -233,7 +369,18 @@ const OrderScreen = () => {
                                         fontWeight: '600',
                                     }}
                                 >
-                                    Potvrdi porudžbinu ☕
+                                    {loadingCreateOrder ? (
+                                        <>
+                                            <Spinner
+                                                size="sm"
+                                                animation="border"
+                                                className="me-2"
+                                            />
+                                            Slanje...
+                                        </>
+                                    ) : (
+                                        'Potvrdi porudžbinu ☕'
+                                    )}
                                 </Button>
                             </Card.Body>
                         </Card>

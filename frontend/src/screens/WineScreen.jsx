@@ -3,7 +3,9 @@ import VertigoNavbar from '../components/VertigoNavbar';
 // Uvoz slike sa promenjenim nazivom promenljive prema tvom zahtevu
 import rose from '../assets/images/rose.jpg';
 import ScrollToTopButton from '../components/ScrollToTopButton';
-
+import { Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../slices/cartSlice';
 
 const WineScreen = () => {
     const petrovicWines = [
@@ -32,6 +34,12 @@ const WineScreen = () => {
             image: rose,
         },
     ];
+
+    const dispatch = useDispatch();
+
+    const addToCartHandler = (product) => {
+        dispatch(addToCart(product));
+    };
 
     const plantazeWines = [
         {
@@ -216,14 +224,23 @@ const WineScreen = () => {
                         {petrovicWines.map((item) => (
                             <div
                                 key={item.id}
-                                className='d-flex justify-content-between mb-3'
+                                className='d-flex justify-content-between align-items-center mb-3'
                                 style={{
                                     borderBottom: '1px solid #ddd',
                                     paddingBottom: '10px',
                                 }}
                             >
                                 <span>{item.name}</span>
-                                <strong>{item.price}</strong>
+
+                                <strong>{item.price} RSD</strong>
+
+                                <Button
+                                    size='sm'
+                                    variant='success'
+                                    onClick={() => addToCartHandler(item)}
+                                >
+                                    Dodaj
+                                </Button>
                             </div>
                         ))}
                     </Card.Body>
@@ -254,14 +271,23 @@ const WineScreen = () => {
                         {plantazeWines.map((item) => (
                             <div
                                 key={item.id}
-                                className='d-flex justify-content-between mb-3'
+                                className='d-flex justify-content-between align-items-center mb-3'
                                 style={{
                                     borderBottom: '1px solid #ddd',
                                     paddingBottom: '10px',
                                 }}
                             >
                                 <span>{item.name}</span>
-                                <strong>{item.price}</strong>
+
+                                <strong>{item.price} RSD</strong>
+
+                                <Button
+                                    size='sm'
+                                    variant='success'
+                                    onClick={() => addToCartHandler(item)}
+                                >
+                                    Dodaj
+                                </Button>
                             </div>
                         ))}
                     </Card.Body>
@@ -291,19 +317,28 @@ const WineScreen = () => {
                         {somersbyCiders.map((item) => (
                             <div
                                 key={item.id}
-                                className='d-flex justify-content-between mb-3'
+                                className='d-flex justify-content-between align-items-center mb-3'
                                 style={{
                                     borderBottom: '1px solid #ddd',
                                     paddingBottom: '10px',
                                 }}
                             >
                                 <span>{item.name}</span>
-                                <strong>{item.price}</strong>
+
+                                <strong>{item.price} RSD</strong>
+
+                                <Button
+                                    size='sm'
+                                    variant='success'
+                                    onClick={() => addToCartHandler(item)}
+                                >
+                                    Dodaj
+                                </Button>
                             </div>
                         ))}
                     </Card.Body>
                 </Card>
-            <ScrollToTopButton />
+                <ScrollToTopButton />
 
             </Container>
         </div>

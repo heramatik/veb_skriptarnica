@@ -8,10 +8,6 @@ const createOrder = async (req, res) => {
             shippingAddress,
             paymentMethod,
             selectedCard,
-            itemsPrice,
-            discountPercentage,
-            discountAmount,
-            totalPrice,
         } = req.body;
 
         if (!orderItems || orderItems.length === 0) {
@@ -26,56 +22,106 @@ const createOrder = async (req, res) => {
             });
         }
 
+        // ==============================
+        // PRONALAZIMO KORISNIKA
+        // ==============================
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'Korisnik nije pronađen',
+            });
+        }
+
+        // ==============================
+        // CENA ARTIKALA
+        // ==============================
+
+        const itemsPrice = orderItems.reduce(
+            (acc, item) => acc + item.price * item.qty,
+            0
+        );
+
+        // ==============================
+        // POPUST
+        // ==============================
+
+        let discountPercentage = 0;
+
+        if (user.isAdmin) {
+            discountPercentage = 100;
+        } else if (user.isManager) {
+            discountPercentage = 100;
+        } else if (user.isWaiter) {
+            discountPercentage = 30;
+        } else if (user.isLoyalCustomer) {
+            discountPercentage = 15;
+        }
+
+        const discountAmount =
+            (itemsPrice * discountPercentage) / 100;
+
+        const totalPrice =
+            itemsPrice - discountAmount;
+
+        // ==============================
+        // KREIRANJE PORUDŽBINE
+        // ==============================
+
         const order = new Order({
-            user: req.user?._id || null,
+            user: user._id,
+
             orderItems,
+
             shippingAddress,
+
             paymentMethod,
+
             selectedCard: selectedCard || null,
+
             itemsPrice,
-            discountPercentage: discountPercentage || 0,
-            discountAmount: discountAmount || 0,
+
+            discountPercentage,
+
+            discountAmount,
+
             totalPrice,
 
-            // DEMO plaćanje
-            // Ne vrši se stvarna naplata kartice.
+            // DEMO PLAĆANJE
             isPaid: paymentMethod === 'Kartica',
-            paidAt: paymentMethod === 'Kartica'
-                ? new Date()
-                : null,
+
+            paidAt:
+                paymentMethod === 'Kartica'
+                    ? new Date()
+                    : null,
         });
 
         const createdOrder = await order.save();
 
-        // ==========================================
-        // LOYALTY PROGRAM
-        // ==========================================
+        // ==============================
+        // PROVERA LOYALTY PROGRAMA
+        // ==============================
 
-        if (req.user?._id) {
-            const user = await User.findById(req.user._id);
+        const successfulOrders = await Order.countDocuments({
+            user: user._id,
+            $or: [
+                { isPaid: true },
+                { isDelivered: true },
+            ],
+        });
 
-            if (user && !user.isLoyalCustomer) {
+        if (
+            successfulOrders >= 5 &&
+            !user.isLoyalCustomer
+        ) {
+            user.isLoyalCustomer = true;
 
-                // Broj uspešnih porudžbina
-                const successfulOrders = await Order.countDocuments({
-                    user: user._id,
-                    $or: [
-                        { isPaid: true },
-                        { isDelivered: true },
-                    ],
-                });
+            await user.save();
 
-                // Nakon 5 uspešnih porudžbina
-                // korisnik postaje Stalan Gost
-                if (successfulOrders >= 5) {
-                    user.isLoyalCustomer = true;
-                    await user.save();
-
-                    console.log(
-                        `⭐ Korisnik ${user.email} je postao Stalan Gost!`
-                    );
-                }
-            }
+            console.log(
+                `⭐ ${user.email} je postao Stalan Gost!`
+            );
         }
 
         res.status(201).json(createdOrder);
@@ -98,12 +144,9 @@ const getMyOrders = async (req, res) => {
     try {
         const orders = await Order.find({
             user: req.user._id,
-        }).sort({
-            createdAt: -1,
-        });
+        }).sort({ createdAt: -1 });
 
         res.json(orders);
-
     } catch (error) {
         console.error('Get my orders error:', error);
 
@@ -112,7 +155,6 @@ const getMyOrders = async (req, res) => {
         });
     }
 };
-
 
 export {
     createOrder,

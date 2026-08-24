@@ -14,7 +14,7 @@ import {
     removeFromCart,
     increaseQty,
     decreaseQty,
-    saveDiscountPercentage, // DODATO: Uvozimo novu akciju iz cartSlice-a
+    saveDiscountPercentage,
 } from '../slices/cartSlice';
 
 import { FaShoppingCart } from 'react-icons/fa';
@@ -25,7 +25,7 @@ const CartScreen = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    
+
     const removeFromCartHandler = (id) => {
         dispatch(removeFromCart(id));
     };
@@ -38,37 +38,57 @@ const CartScreen = () => {
         dispatch(decreaseQty(id));
     };
 
-    // FUNKCIJA ZA ODREĐIVANJE POPUSTA NA OSNOVU ULOGE
+    // ODREĐIVANJE POPUSTA NA OSNOVU ULOGE
     const getDiscountPercentage = () => {
-        if (!userInfo) return 0; // Ako gost nije ulogovan, popust je 0%
-        if (userInfo.isAdmin || userInfo.isManager) return 100; // Admini i menadžeri imaju 100%
-        if (userInfo.isWaiter) return 30; // Konobari imaju 30% radnički popust
-        if (userInfo.isLoyalCustomer) return 15; // VIP gosti imaju 15%
-        return 0; // Običan gost
+        if (!userInfo) return 0;
+
+        if (userInfo.isAdmin || userInfo.isManager) return 100;
+
+        if (userInfo.isWaiter) return 30;
+
+        if (userInfo.isLoyalCustomer) return 15;
+
+        return 0;
     };
 
     const discount = getDiscountPercentage();
 
-    // RAČUNANJE FINANSIJA (za lokalni prikaz na ekranu korpe)
-    const rawTotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-    const discountAmount = (rawTotal * discount) / 100;
-    const finalTotal = rawTotal - discountAmount;
+    // UKUPNA CENA SVIH ARTIKALA
+    const rawTotal = cartItems.reduce(
+        (acc, item) => acc + item.price * item.qty,
+        0
+    );
 
-    // DODATO: Funkcija koja zaključava popust u Redux pre nego što pređeš na sledeći korak
+    // IZNOS POPUSTA
+    const discountAmount = (rawTotal * discount) / 100;
+
+    // CENA NAKON POPUSTA
+    const totalAfterDiscount = rawTotal - discountAmount;
+
+    // AUTOMATSKI BAKŠIŠ 10%
+    const tipPercentage = 10;
+    const tipAmount = (totalAfterDiscount * tipPercentage) / 100;
+
+    // KONAČNA CENA
+    const finalTotal = totalAfterDiscount + tipAmount;
+
+    // PRELAZAK NA SLEDEĆI KORAK
     const checkoutHandler = () => {
         dispatch(saveDiscountPercentage(discount));
-        navigate('/shipping'); // Preusmerava na ekran "Podaci za porudžbinu"
+        navigate('/shipping');
     };
 
     return (
         <div
             style={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
+                background:
+                    'linear-gradient(135deg, #958b90 0%, #d5c2bc 100%)',
                 padding: '40px 0',
             }}
         >
             <Container>
+
                 <h1
                     style={{
                         color: '#441212',
@@ -92,35 +112,46 @@ const CartScreen = () => {
                     </Card>
                 ) : (
                     <Row>
+
+                        {/* ARTIKLI */}
                         <Col md={8}>
+
                             <ListGroup
                                 style={{
                                     borderRadius: '25px',
                                     overflow: 'hidden',
-                                    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                                    boxShadow:
+                                        '0 8px 20px rgba(0,0,0,0.1)',
                                 }}
                             >
+
                                 {cartItems.map((item) => (
+
                                     <ListGroup.Item
                                         key={item.id}
                                         className='d-flex justify-content-between align-items-center'
                                         style={{
                                             padding: '20px',
-                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                            backgroundColor:
+                                                'rgba(255,255,255,0.85)',
                                         }}
                                     >
+
                                         <div>
                                             <strong>{item.name}</strong>
                                         </div>
 
                                         <div className='d-flex align-items-center gap-2'>
+
+                                            {/* - */}
                                             <Button
                                                 size='sm'
-                                                onClick={() => decreaseQtyHandler(item.id)}
+                                                onClick={() =>
+                                                    decreaseQtyHandler(item.id)
+                                                }
                                                 style={{
                                                     backgroundColor: '#ac9e99',
                                                     border: 'none',
-                                                    transition: '0.3s',
                                                     color: '#441212',
                                                     fontWeight: 'bold',
                                                     width: '35px',
@@ -129,6 +160,7 @@ const CartScreen = () => {
                                                 -
                                             </Button>
 
+                                            {/* KOLIČINA */}
                                             <span
                                                 style={{
                                                     fontWeight: 'bold',
@@ -139,12 +171,14 @@ const CartScreen = () => {
                                                 {item.qty}
                                             </span>
 
+                                            {/* + */}
                                             <Button
                                                 size='sm'
-                                                onClick={() => increaseQtyHandler(item.id)}
+                                                onClick={() =>
+                                                    increaseQtyHandler(item.id)
+                                                }
                                                 style={{
                                                     backgroundColor: '#789fc3',
-                                                    transition: '0.3s',
                                                     border: 'none',
                                                     fontWeight: 'bold',
                                                     width: '35px',
@@ -153,6 +187,7 @@ const CartScreen = () => {
                                                 +
                                             </Button>
 
+                                            {/* CENA */}
                                             <span
                                                 style={{
                                                     marginLeft: '15px',
@@ -163,9 +198,12 @@ const CartScreen = () => {
                                                 {item.price * item.qty} RSD
                                             </span>
 
+                                            {/* UKLONI */}
                                             <Button
                                                 size='sm'
-                                                onClick={() => removeFromCartHandler(item.id)}
+                                                onClick={() =>
+                                                    removeFromCartHandler(item.id)
+                                                }
                                                 style={{
                                                     backgroundColor: '#c06060',
                                                     border: 'none',
@@ -176,21 +214,31 @@ const CartScreen = () => {
                                             >
                                                 Ukloni
                                             </Button>
+
                                         </div>
+
                                     </ListGroup.Item>
+
                                 ))}
+
                             </ListGroup>
+
                         </Col>
 
+                        {/* PREGLED PORUDŽBINE */}
                         <Col md={4}>
+
                             <Card
                                 style={{
                                     border: 'none',
                                     borderRadius: '25px',
-                                    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                                    boxShadow:
+                                        '0 8px 20px rgba(0,0,0,0.1)',
                                 }}
                             >
+
                                 <Card.Body>
+
                                     <h4
                                         style={{
                                             color: '#441212',
@@ -202,44 +250,120 @@ const CartScreen = () => {
 
                                     <hr />
 
-                                    {/* STATUS POPUSTA */}
+                                    {/* POPUST */}
                                     {discount > 0 && (
                                         <div className='mb-3 text-center'>
-                                            <Badge bg="success" className="p-2 w-100" style={{ fontSize: '0.9rem', borderRadius: '10px' }}>
+
+                                            <Badge
+                                                bg='success'
+                                                className='p-2 w-100'
+                                                style={{
+                                                    fontSize: '0.9rem',
+                                                    borderRadius: '10px',
+                                                }}
+                                            >
                                                 🎉 Primenjen popust od {discount}%!
                                             </Badge>
+
                                         </div>
                                     )}
 
+                                    {/* BROJ ARTIKALA */}
                                     <div className='d-flex justify-content-between mb-2'>
                                         <span>Artikli:</span>
+
                                         <strong>
-                                            {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                                            {cartItems.reduce(
+                                                (acc, item) =>
+                                                    acc + item.qty,
+                                                0
+                                            )}
                                         </strong>
                                     </div>
 
+                                    {/* CENA ARTIKALA */}
                                     <div className='d-flex justify-content-between mb-2'>
                                         <span>Cena artikala:</span>
-                                        <span>{rawTotal} RSD</span>
+
+                                        <span>
+                                            {rawTotal.toFixed(2)} RSD
+                                        </span>
                                     </div>
 
+                                    {/* POPUST */}
                                     {discount > 0 && (
-                                        <div className='d-flex justify-content-between mb-2' style={{ color: '#28a745' }}>
-                                            <span>Ušteda ({discount}%):</span>
-                                            <strong>-{discountAmount} RSD</strong>
+                                        <div
+                                            className='d-flex justify-content-between mb-2'
+                                            style={{
+                                                color: '#28a745',
+                                            }}
+                                        >
+                                            <span>
+                                                Ušteda ({discount}%):
+                                            </span>
+
+                                            <strong>
+                                                -{discountAmount.toFixed(2)} RSD
+                                            </strong>
                                         </div>
                                     )}
+
+                                    {/* CENA NAKON POPUSTA */}
+                                    {discount > 0 && (
+                                        <div className='d-flex justify-content-between mb-2'>
+                                            <span>
+                                                Nakon popusta:
+                                            </span>
+
+                                            <strong>
+                                                {totalAfterDiscount.toFixed(2)} RSD
+                                            </strong>
+                                        </div>
+                                    )}
+
+                                    {/* BAKŠIŠ */}
+                                    <div
+                                        className='d-flex justify-content-between mb-2'
+                                        style={{
+                                            color: '#8b5e3c',
+                                        }}
+                                    >
+                                        <span>
+                                            Bakšiš ({tipPercentage}%):
+                                        </span>
+
+                                        <strong>
+                                            +{tipAmount.toFixed(2)} RSD
+                                        </strong>
+                                    </div>
 
                                     <hr />
 
+                                    {/* UKUPNO */}
                                     <div className='d-flex justify-content-between mb-3'>
-                                        <span style={{ fontSize: '1.2rem', fontWeight: '500' }}>Ukupno za uplatu:</span>
-                                        <strong style={{ color: '#441212', fontSize: '1.4rem', fontWeight: '800' }}>
-                                            {finalTotal} RSD
+
+                                        <span
+                                            style={{
+                                                fontSize: '1.2rem',
+                                                fontWeight: '500',
+                                            }}
+                                        >
+                                            Ukupno za uplatu:
+                                        </span>
+
+                                        <strong
+                                            style={{
+                                                color: '#441212',
+                                                fontSize: '1.4rem',
+                                                fontWeight: '800',
+                                            }}
+                                        >
+                                            {finalTotal.toFixed(2)} RSD
                                         </strong>
+
                                     </div>
 
-                                    {/* IZMENJENO: onClick sada aktivira checkoutHandler */}
+                                    {/* NARUČI */}
                                     <Button
                                         className='w-100'
                                         onClick={checkoutHandler}
@@ -254,11 +378,16 @@ const CartScreen = () => {
                                     >
                                         Naruči
                                     </Button>
+
                                 </Card.Body>
+
                             </Card>
+
                         </Col>
+
                     </Row>
                 )}
+
             </Container>
         </div>
     );

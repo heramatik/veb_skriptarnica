@@ -20,13 +20,9 @@ const MenuScreen = () => {
     const dispatch = useDispatch();
 
     const addToCartHandler = (product) => {
-        dispatch(
-            addToCart({
-                ...product,
-                qty: 1,
-            })
-        );
+        dispatch(addToCart(product));
     };
+    
     const hotDrinks = [
         { id: 1, name: 'Espresso', price: 190 },
         { id: 2, name: 'Espresso sa mlekom', price: 210 },
