@@ -14,9 +14,6 @@ export const updateCart = (state) => {
     // 3. Računamo iznos popusta u RSD
     state.discountAmount = addDecimals((state.itemsPrice * discountPercent) / 100);
 
-    // 4. Računamo dostavu (Besplatna preko 2000 RSD ili ako je admin/menadžer sa 100% popusta)
-    state.shippingPrice = addDecimals(state.itemsPrice > 2000 || discountPercent === 100 ? 0 : 300);
-
     // 5. Računamo porez (10% na cenu nakon odbijenog popusta)
     const priceAfterDiscount = state.itemsPrice - state.discountAmount;
     state.taxPrice = addDecimals(Number((0.1 * priceAfterDiscount).toFixed(2)));
@@ -24,7 +21,6 @@ export const updateCart = (state) => {
     // 6. KONAČNA CENA
     state.totalPrice = addDecimals(
         Number(priceAfterDiscount) +
-        Number(state.shippingPrice) +
         Number(state.taxPrice)
     );
 
