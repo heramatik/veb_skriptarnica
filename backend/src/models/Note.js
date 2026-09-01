@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 //napraviti semu
 //onda model na osnovu seme
-                                    //u semu se dodaju objekti 
+//u semu se dodaju objekti 
 const noteSchema = new mongoose.Schema(
     {
     title: {

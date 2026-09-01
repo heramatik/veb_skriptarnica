@@ -156,7 +156,57 @@ const getMyOrders = async (req, res) => {
     }
 };
 
+//oznaci kao placeno
+const markOrderAsPaid = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                message: 'Porudžbina nije pronađena',
+            });
+        }
+
+        order.isPaid = true;
+        order.paidAt = new Date();
+
+        const updatedOrder = await order.save();
+
+        // Provera loyalty programa
+        const user = await User.findById(order.user);
+
+        if (user && !user.isLoyalCustomer) {
+            const successfulOrders = await Order.countDocuments({
+                user: user._id,
+                $or: [
+                    { isPaid: true },
+                    { isDelivered: true },
+                ],
+            });
+
+            if (successfulOrders >= 5) {
+                user.isLoyalCustomer = true;
+                await user.save();
+
+                console.log(
+                    `⭐ ${user.email} je postao Stalan Gost!`
+                );
+            }
+        }
+
+        res.json(updatedOrder);
+
+    } catch (error) {
+        console.error('Mark order as paid error:', error);
+
+        res.status(500).json({
+            message: 'Greška prilikom označavanja porudžbine kao plaćene',
+        });
+    }
+};
+
 export {
     createOrder,
     getMyOrders,
+    markOrderAsPaid,
 };

@@ -16,7 +16,7 @@ const AddCardScreen = () => {
         if (n.startsWith('5')) return 'MasterCard';
         if (n.startsWith('3')) return 'American Express';
         if (n.startsWith('9')) return 'Dina';   // DinaCard (pojednostavljeno za demo)
-        return null;                            // nepoznato
+        return null;                            
     };
 
     const submitHandler = async (e) => {
@@ -68,7 +68,7 @@ const AddCardScreen = () => {
                             type='text'
                             value={cardNumber}
                             onChange={(e) => setCardNumber(e.target.value)}
-                            placeholder='1234 5678 9012 3456'
+                            placeholder='5455 5678 9012 3456'
                             required
                         />
                     </Form.Group>

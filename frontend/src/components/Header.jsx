@@ -35,11 +35,11 @@ const Header = () => {
         } catch (err) {
             console.error(err);
         }
-        dispatch(logout());   // uvek očisti sesiju, bez obzira na server
+        dispatch(logout());   // uvek brisi, bez obzira na server
         navigate('/login');
     };
 
-    // Pomoćna funkcija koja dodaje vizuelni bedž ili tekst pored imena u zavisnosti od uloge
+    // Pomoćna funkcija koja dodaje vizuelni 'ikonicu' pored imena u zavisnosti od uloge
     const renderRoleBadge = (role) => {
         switch (role) {
             case 'admin': return ' 👑 (Admin)';

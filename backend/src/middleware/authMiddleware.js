@@ -1,18 +1,17 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js'; // Prilagodi putanju ako zatreba
+import User from '../models/userModel.js'; 
 
 // Middleware za proveru da li je korisnik ulogovan (ima validan token)
 const protect = async (req, res, next) => {
     let token;
 
     // Proveravamo da li token stiže kroz Authorization Header (Bearer token)
-    // ili kroz kolačiće (ako koristiš req.cookies.jwt)
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             // Token izgleda kao: "Bearer eYjKdfg..." -> uzimamo samo drugi deo
             token = req.headers.authorization.split(' ')[1];
 
-            // Dekodiramo token pomoću tajnog ključa koji ti je u .env fajlu
+            // Dekodiramo token pomoću tajnog ključa koji je u .env fajlu
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             // Nalazimo korisnika u bazi preko ID-ja iz tokena i "kačimo" ga na req objekt (bez lozinke)

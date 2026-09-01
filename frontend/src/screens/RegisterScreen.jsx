@@ -289,7 +289,7 @@ const RegisterScreen = () => {
                                 className="w-100 mb-3"
                                 disabled={isLoading}
                                 style={{
-                                    backgroundColor: '#441212',
+                                    backgroundColor: '#815252',
                                     border: 'none',
                                     borderRadius: '15px',
                                     padding: '12px',

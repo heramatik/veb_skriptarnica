@@ -14,10 +14,14 @@ import {
 
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useGetMyOrdersQuery } from '../slices/orderApiSlice';
-
+import {
+    useGetMyOrdersQuery,
+    useMarkOrderAsPaidMutation,
+} from '../slices/orderApiSlice';
 const ProfileScreen = () => {
     const navigate = useNavigate();
+
+    const [markOrderAsPaid] = useMarkOrderAsPaidMutation();
 
     const { userInfo } = useSelector((state) => state.auth);
 
@@ -95,13 +99,10 @@ const ProfileScreen = () => {
 
     const details = getUserRoleDetails();
 
+
     return (
         <Container className="py-5">
             <Row className="justify-content-center">
-
-                {/* =========================
-                    LEVA STRANA - PROFIL
-                ========================== */}
 
                 <Col md={4} className="mb-4">
                     <Card
@@ -150,7 +151,7 @@ const ProfileScreen = () => {
                             <hr />
 
                             {/* =================
-                                POPUST
+                               /* POPUST
                             ================= */}
 
                             <div
@@ -311,10 +312,6 @@ const ProfileScreen = () => {
                     </Card>
                 </Col>
 
-                {/* =========================
-                    DESNA STRANA - PORUDŽBINE
-                ========================== */}
-
                 <Col md={8}>
 
                     <Card
@@ -445,27 +442,43 @@ const ProfileScreen = () => {
                                                     </td>
 
                                                     <td>
-
                                                         {order.isDelivered ? (
-
                                                             <Badge bg="success">
                                                                 Isporučeno
                                                             </Badge>
-
                                                         ) : order.isPaid ? (
-
                                                             <Badge bg="primary">
                                                                 Plaćeno
                                                             </Badge>
-
                                                         ) : (
+                                                            <>
+                                                                <Badge bg="warning" className="mb-2">
+                                                                    Na čekanju
+                                                                </Badge>
 
-                                                            <Badge bg="warning">
-                                                                Na čekanju
-                                                            </Badge>
-
+                                                                {order.paymentMethod === 'Gotovina' && (
+                                                                    <Button
+                                                                        variant="success"
+                                                                        size="sm"
+                                                                        className="d-block"
+                                                                        onClick={async () => {
+                                                                            try {
+                                                                                await markOrderAsPaid(
+                                                                                    order._id
+                                                                                ).unwrap();
+                                                                            } catch (error) {
+                                                                                console.error(
+                                                                                    'Greška:',
+                                                                                    error
+                                                                                );
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        ✓ Označi kao plaćeno
+                                                                    </Button>
+                                                                )}
+                                                            </>
                                                         )}
-
                                                     </td>
 
                                                 </tr>

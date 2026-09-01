@@ -63,13 +63,11 @@ const ProductScreen = () => {
                         <Card className='border-0 shadow-sm'>
                             <Card.Body>
                                 <h4 className='mb-4'>Informacije o proizvodu</h4>
-                                <div className='d-flex justify-content-between
-mb-3'>
+                                <div className='d-flex justify-content-between mb-3'>
                                     <span>Kategorija:</span>
                                     {product.category}
                                 </div>
-                                <div className='d-flex justify-content-between
-align-items-center mb-4'>
+                                <div className='d-flex justify-content-between align-items-center mb-4'>
                                     <span>Status:</span>
                                     {product.countInStock > 0 ? (
                                         <Badge bg='success'>Dostupno</Badge>

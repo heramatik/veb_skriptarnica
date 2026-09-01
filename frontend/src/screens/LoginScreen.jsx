@@ -96,7 +96,7 @@ const LoginScreen = () => {
                                 type='submit'
                                 className='w-100'
                                 style={{
-                                    backgroundColor: '#441212',
+                                    backgroundColor: '#815252',
                                     border: 'none',
                                     borderRadius: '15px',
                                     padding: '12px',
