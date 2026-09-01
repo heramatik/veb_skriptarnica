@@ -206,42 +206,47 @@ const RegisterScreen = () => {
                                     <option value="manager">
                                         👔 Menadžer
                                     </option>
+
+                                    <option value="admin">
+                                        👑 Administrator
+                                    </option>
                                 </Form.Select>
 
                                 <Form.Text className="text-muted">
                                     Gost ne zahteva dodatnu šifru.
-                                    Za Konobara i Menadžera potrebna je
-                                    posebna šifra.
+                                    Za Konobara i Menadžera potrebna je službena šifra. 👔
+                                    Za Administratora je potrebna posebna administratorska šifra. 👑
                                 </Form.Text>
                             </Form.Group>
 
                             {/* ŠIFRA ZA ULOGU */}
                             {(role === 'waiter' ||
-                                role === 'manager') && (
-                                <Form.Group
-                                    className="mb-3"
-                                    controlId="roleCode"
-                                >
-                                    <Form.Label>
-                                        🔐 Šifra za izbor uloge
-                                    </Form.Label>
+                                role === 'manager' ||
+                                role === 'admin') && (
+                                    <Form.Group
+                                        className="mb-3"
+                                        controlId="roleCode"
+                                    >
+                                        <Form.Label>
+                                            🔐 Šifra za izbor uloge
+                                        </Form.Label>
 
-                                    <Form.Control
-                                        type="password"
-                                        placeholder="Unesite šifru"
-                                        value={roleCode}
-                                        onChange={(e) =>
-                                            setRoleCode(e.target.value)
-                                        }
-                                        required
-                                    />
+                                        <Form.Control
+                                            type="password"
+                                            placeholder="Unesite šifru"
+                                            value={roleCode}
+                                            onChange={(e) =>
+                                                setRoleCode(e.target.value)
+                                            }
+                                            required
+                                        />
 
-                                    <Form.Text className="text-muted">
-                                        Ova šifra je potrebna za
-                                        registraciju zaposlenih.
-                                    </Form.Text>
-                                </Form.Group>
-                            )}
+                                        <Form.Text className="text-muted">
+                                            Ova šifra je potrebna za
+                                            registraciju zaposlenih.
+                                        </Form.Text>
+                                    </Form.Group>
+                                )}
 
                             {/* LOZINKA */}
                             <Form.Group

@@ -461,6 +461,9 @@ const ProfileScreen = () => {
                                                                         variant="success"
                                                                         size="sm"
                                                                         className="d-block"
+                                                                        backgroundColor="#997777"
+                                                                        color="#211c1cf1f"
+                                                                        weight=""
                                                                         onClick={async () => {
                                                                             try {
                                                                                 await markOrderAsPaid(

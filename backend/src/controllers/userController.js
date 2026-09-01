@@ -23,12 +23,13 @@ const registerUser = async (req, res) => {
     }
 
     // Podrazumevana uloga je Gost
+    let isAdmin = false;
     let isManager = false;
     let isWaiter = false;
 
     // Ako korisnik želi da bude konobar ili menadžer,
     // mora da unese posebnu šifru
-    if (role === 'waiter' || role === 'manager') {
+    if (role === 'waiter') {
 
         if (roleCode !== '2525') {
             return res.status(400).json({
@@ -36,13 +37,33 @@ const registerUser = async (req, res) => {
             });
         }
 
-        if (role === 'waiter') {
-            isWaiter = true;
+        isWaiter = true;
+    }
+
+    if (role === 'manager') {
+
+        if (roleCode !== '5555') {
+            return res.status(400).json({
+                message: 'Pogrešna šifra za izbor ove uloge.',
+            });
+        }
+        
+        isManager = true;
+    }
+
+    // ==========================================
+    // ADMIN REGISTRACIJA
+    // ==========================================
+
+    if (role === 'admin') {
+
+        if (roleCode !== 'ADMIN2026') {
+            return res.status(400).json({
+                message: 'Pogrešna administratorska šifra.',
+            });
         }
 
-        if (role === 'manager') {
-            isManager = true;
-        }
+        isAdmin = true;
     }
 
     const user = await User.create({
@@ -53,7 +74,7 @@ const registerUser = async (req, res) => {
         address,
         isManager,
         isWaiter,
-        isAdmin: false,
+        isAdmin,
         isLoyalCustomer: false,
     });
 
@@ -288,6 +309,66 @@ const updateUserProfile = async (req, res) => {
         });
     }
 };
+// ==========================================
+// ADMIN LOGIN
+// ==========================================
+
+const adminLogin = async (req, res) => {
+    console.log('ADMIN LOGIN BODY:', req.body);
+
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        // Mora da postoji korisnik
+        if (!user) {
+            return res.status(401).json({
+                message: 'Pogrešan admin email ili šifra',
+            });
+        }
+
+        // Mora biti administrator
+        if (!user.isAdmin) {
+            return res.status(403).json({
+                message: 'Ovaj nalog nema administratorska prava',
+            });
+        }
+
+        // Provera passworda preko bcrypt-a
+        const passwordMatch = await user.matchPassword(password);
+
+        if (!passwordMatch) {
+            return res.status(401).json({
+                message: 'Pogrešan admin email ili šifra',
+            });
+        }
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            address: user.address,
+
+            isAdmin: user.isAdmin,
+            isManager: user.isManager,
+            isWaiter: user.isWaiter,
+            isLoyalCustomer: user.isLoyalCustomer,
+
+            savedCards: user.savedCards,
+
+            token: generateToken(user._id),
+        });
+
+    } catch (error) {
+        console.error('Admin login error:', error);
+
+        res.status(500).json({
+            message: 'Greška prilikom admin prijave',
+        });
+    }
+};
 
 export {
     registerUser,
@@ -299,4 +380,5 @@ export {
     addCard,
     getCards,
     deleteCard,
+    adminLogin,
 };

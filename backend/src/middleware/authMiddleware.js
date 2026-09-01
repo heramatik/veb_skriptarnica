@@ -32,10 +32,28 @@ const protect = async (req, res, next) => {
 // Middleware za proveru da li je korisnik administrator
 const admin = (req, res, next) => {
     if (req.user && req.user.isAdmin) {
-        next(); // Korisnik je admin, pusti ga dalje
+        next();
     } else {
-        res.status(413).json({ message: 'Pristup odbijen. Samo za administratore!' });
+        res.status(403).json({
+            message: 'Pristup odbijen. Samo za administratore!',
+        });
     }
 };
 
-export { protect, admin };
+const staffOrAdmin = (req, res, next) => {
+
+    if (
+        req.user &&
+        (
+            req.user.isAdmin ||
+            req.user.isWaiter
+        )
+    ) {
+        next();
+    } else {
+        res.status(403).json({
+            message: 'Samo konobar ili administrator mogu potvrditi plaćanje.',
+        });
+    }
+};
+export { protect, admin, staffOrAdmin };

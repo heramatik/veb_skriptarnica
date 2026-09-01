@@ -8,6 +8,7 @@ import {
     updateUserProfile,
     addCard,
     getCards,
+    adminLogin,
     deleteCard,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
@@ -16,6 +17,7 @@ const router = express.Router();
 
 // JAVNE RUTE
 router.post('/login', authUser);
+router.post('/admin-login', adminLogin);
 router.post('/logout', logoutUser);
 
 router.put('/profile', protect, updateUserProfile);

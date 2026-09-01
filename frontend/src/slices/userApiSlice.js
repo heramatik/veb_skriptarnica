@@ -12,6 +12,14 @@ export const userApiSlice = apiSlice.injectEndpoints({
             }),
         }),
 
+        adminLogin: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/admin-login`,
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
         register: builder.mutation({
             query: (data) => ({
                 url: USERS_URL,
@@ -58,7 +66,6 @@ export const userApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["Card"],
         }),
-
     }),
 });
 
@@ -69,5 +76,6 @@ export const {
     useUpdateProfileMutation,
     useAddCardMutation,
     useGetCardsQuery,
+    useAdminLoginMutation,
     useDeleteCardMutation,
 } = userApiSlice;

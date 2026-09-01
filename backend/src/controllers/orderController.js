@@ -187,10 +187,6 @@ const markOrderAsPaid = async (req, res) => {
             if (successfulOrders >= 5) {
                 user.isLoyalCustomer = true;
                 await user.save();
-
-                console.log(
-                    `⭐ ${user.email} je postao Stalan Gost!`
-                );
             }
         }
 
@@ -200,7 +196,7 @@ const markOrderAsPaid = async (req, res) => {
         console.error('Mark order as paid error:', error);
 
         res.status(500).json({
-            message: 'Greška prilikom označavanja porudžbine kao plaćene',
+            message: 'Greška prilikom potvrde plaćanja',
         });
     }
 };

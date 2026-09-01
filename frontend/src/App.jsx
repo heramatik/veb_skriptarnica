@@ -1,4 +1,7 @@
 import { Container } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import AdminNavbar from './components/AdminNavbar';
+import AdminLayout from './components/AdminLayout';
 import { Routes, Route } from 'react-router-dom';
 import EditProfileScreen from './screens/EditProfileScreen';
 import Header from './components/Header';
@@ -17,15 +20,20 @@ import ProfileScreen from './screens/ProfileScreen';
 import AddCardScreen from './screens/AddCardScreen';
 // UVOZIMO ZAŠTITU RUTA
 import { PrivateRoute, AdminRoute } from './components/PrivateRoute';
-
-// OVDE ĆEŠ KASNIJE KREIRATI I UVESTI ADMIN EKRANE
-// import AdminUsersScreen from './screens/AdminUsersScreen';
-// import AdminControlScreen from './screens/AdminControlScreen';
+// admin ekrani
+import AdminDashboardScreen from './screens/AdminDashboardScreen';
+import AdminProductsScreen from './screens/AdminProductsScreen';
+import AdminOrdersScreen from './screens/AdminOrdersScreen';
+import AdminUsersScreen from './screens/AdminUsersScreen';
 
 function App() {
+  const { userInfo } = useSelector((state) => state.auth);
+
   return (
     <>
       <Header />
+      
+      {userInfo?.isAdmin && <AdminNavbar />}
 
       <main className='py-3'>
         <Container>
@@ -39,22 +47,24 @@ function App() {
             <Route path='/cart' element={<CartScreen />} />
             <Route path='/login' element={<LoginScreen />} />
             <Route path='/register' element={<RegisterScreen />} />
-            <Route path="/edit-profile" element={<EditProfileScreen />}/>
+            <Route path="/edit-profile" element={<EditProfileScreen />} />
 
             {/* ZAŠTIĆENE RUTE ZA KORISNIKE - Mora biti ulogovan bilo koji status */}
             <Route path='' element={<PrivateRoute />}>
-              <Route path='' element={<PrivateRoute />}>
-                <Route path='/shipping' element={<ShippingScreen />} />
-                <Route path='/payment' element={<PaymentScreen />} />
-                <Route path='/order' element={<OrderScreen />} />
-                <Route path='/profile' element={<ProfileScreen />} />
-                <Route path='/cards' element={<AddCardScreen />} />
-              </Route>
+              <Route path='/shipping' element={<ShippingScreen />} />
+              <Route path='/payment' element={<PaymentScreen />} />
+              <Route path='/order' element={<OrderScreen />} />
+              <Route path='/profile' element={<ProfileScreen />} />
+              <Route path='/cards' element={<AddCardScreen />} />
             </Route>
-
-            {/* SPECIJALNE ADMIN RUTE - Samo ti (isAdmin: true) možeš da otvoriš */}
-            <Route path='' element={<AdminRoute />}>
-              { }
+            {/* ADMIN RUTE */}
+            <Route element={<AdminRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminDashboardScreen />} />
+                <Route path="/admin/products" element={<AdminProductsScreen />} />
+                <Route path="/admin/orders" element={<AdminOrdersScreen />} />
+                <Route path="/admin/users" element={<AdminUsersScreen />} />
+              </Route>
             </Route>
           </Routes>
         </Container>
