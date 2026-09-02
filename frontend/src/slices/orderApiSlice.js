@@ -22,6 +22,13 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
             providesTags: ['Order'],
         }),
 
+        getAllOrders: builder.query({
+            query: () => ({
+                url: ORDERS_URL,
+            }),
+            providesTags: ['Order'],
+        }),
+
         // OZNAČAVANJE GOTOVINSKE PORUDŽBINE KAO PLAĆENE
         markOrderAsPaid: builder.mutation({
             query: (orderId) => ({
@@ -36,5 +43,6 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
 export const {
     useCreateOrderMutation,
     useGetMyOrdersQuery,
+    useGetAllOrdersQuery,
     useMarkOrderAsPaidMutation,
 } = ordersApiSlice;

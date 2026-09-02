@@ -1,15 +1,20 @@
 import React from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card } from 'react-bootstrap';
 import {
     FaUsers,
-    FaShoppingBag,
     FaCoffee,
     FaClipboardList,
 } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+
+import { useGetUsersQuery } from '../slices/userApiSlice';
+import { useGetAllOrdersQuery } from '../slices/orderApiSlice';
+import { useGetProductsQuery } from '../slices/productsApiSlice';
 
 const AdminDashboardScreen = () => {
-    const navigate = useNavigate();
+
+    const { data: users = [] } = useGetUsersQuery();
+    const { data: orders = [] } = useGetAllOrdersQuery();
+    const { data: products = [] } = useGetProductsQuery();
 
     return (
         <div
@@ -81,7 +86,7 @@ const AdminDashboardScreen = () => {
                                         fontWeight: 'bold',
                                     }}
                                 >
-                                    0
+                                    {users.length}
                                 </h2>
 
                                 <p className="mb-0">
@@ -125,7 +130,7 @@ const AdminDashboardScreen = () => {
                                         fontWeight: 'bold',
                                     }}
                                 >
-                                    0
+                                    {orders.length}
                                 </h2>
 
                                 <p className="mb-0">
@@ -169,7 +174,7 @@ const AdminDashboardScreen = () => {
                                         fontWeight: 'bold',
                                     }}
                                 >
-                                    0
+                                    {products.length}
                                 </h2>
 
                                 <p className="mb-0">

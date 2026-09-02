@@ -11,9 +11,6 @@ import { addToCart } from '../slices/cartSlice';
 import slika1 from '../assets/images/slika1.jpg';
 import slika4 from '../assets/images/slika4.jpg';
 import slika6 from '../assets/images/slika6.jpg';
-import slika5 from '../assets/images/slika5.jpg';
-import slika3 from '../assets/images/slika3.jpg';
-import shake from '../assets/images/shake.jpg';
 
 
 const MenuScreen = () => {

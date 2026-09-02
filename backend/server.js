@@ -5,6 +5,7 @@ import { connectDB } from "./src/config/db.js";
 import dotenv from "dotenv";
 import orderRoutes from "./src/routes/orderRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
+import productRoutes from "./src/routes/productRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 app.use("/heramatik/zapis", nodesRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/products", productRoutes);
 
 // Pokretanje servera
 connectDB().then(() => {

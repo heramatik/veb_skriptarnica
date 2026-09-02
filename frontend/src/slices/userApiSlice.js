@@ -28,6 +28,12 @@ export const userApiSlice = apiSlice.injectEndpoints({
             }),
         }),
 
+        getUsers: builder.query({
+            query: () => ({
+                url: USERS_URL,
+            }),
+        }),
+
         logout: builder.mutation({
             query: () => ({
                 url: USERS_URL + "/logout",
@@ -66,6 +72,21 @@ export const userApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["Card"],
         }),
+
+        deleteUser: builder.mutation({
+            query: (userId) => ({
+                url: `${USERS_URL}/${userId}`,
+                method: 'DELETE',
+            }),
+        }),
+
+        updateUserRoles: builder.mutation({
+            query: ({ userId, roleData }) => ({
+                url: `${USERS_URL}/${userId}/roles`,
+                method: 'PUT',
+                body: roleData,
+            }),
+        }),
     }),
 });
 
@@ -78,4 +99,7 @@ export const {
     useGetCardsQuery,
     useAdminLoginMutation,
     useDeleteCardMutation,
+    useGetUsersQuery,
+    useDeleteUserMutation,
+    useUpdateUserRolesMutation,
 } = userApiSlice;

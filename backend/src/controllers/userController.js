@@ -47,7 +47,7 @@ const registerUser = async (req, res) => {
                 message: 'Pogrešna šifra za izbor ove uloge.',
             });
         }
-        
+
         isManager = true;
     }
 
@@ -228,8 +228,48 @@ const deleteCard = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
-    const users = await User.find({});
-    res.json(users);
+    try {
+        const users = await User.find({}).select('-password');
+
+        res.json(users);
+    } catch (error) {
+        console.error('Get users error:', error);
+
+        res.status(500).json({
+            message: 'Greška prilikom učitavanja korisnika',
+        });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'Korisnik nije pronađen',
+            });
+        }
+
+        // Sprečavamo administratora da obriše samog sebe
+        if (user.isAdmin && user._id.toString() === req.user._id.toString()) {
+            return res.status(400).json({
+                message: 'Administrator ne može obrisati samog sebe',
+            });
+        }
+
+        await user.deleteOne();
+
+        res.json({
+            message: 'Korisnik je uspešno obrisan',
+        });
+    } catch (error) {
+        console.error('Delete user error:', error);
+
+        res.status(500).json({
+            message: 'Greška prilikom brisanja korisnika',
+        });
+    }
 };
 
 // @desc    Update user roles and info
@@ -379,6 +419,7 @@ export {
     updateUserRoles,
     addCard,
     getCards,
+    deleteUser,
     deleteCard,
     adminLogin,
 };

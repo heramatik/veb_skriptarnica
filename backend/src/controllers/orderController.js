@@ -156,6 +156,25 @@ const getMyOrders = async (req, res) => {
     }
 };
 
+// ==========================================
+// SVE PORUDŽBINE - ADMIN
+// ==========================================
+
+const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find({})
+            .populate('user', 'name email phone')
+            .sort({ createdAt: -1 });
+
+        res.json(orders);
+    } catch (error) {
+        console.error('Get all orders error:', error);
+        res.status(500).json({
+            message: 'Greška prilikom učitavanja svih porudžbina',
+        });
+    }
+};
+
 //oznaci kao placeno
 const markOrderAsPaid = async (req, res) => {
     try {
@@ -205,4 +224,5 @@ export {
     createOrder,
     getMyOrders,
     markOrderAsPaid,
+    getAllOrders,
 };

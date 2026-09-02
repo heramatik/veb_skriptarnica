@@ -9,6 +9,7 @@ import {
     addCard,
     getCards,
     adminLogin,
+    deleteUser,
     deleteCard,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
@@ -33,6 +34,9 @@ router.route('/cards/:id')
 router.route('/')
     .post(registerUser)
     .get(protect, admin, getUsers);
+
+//brisanje naloga korisnika - admin
+router.delete('/:id', protect, admin, deleteUser);
 
 // IZMENA ULOGA
 router.route('/:id/roles')
